@@ -1,0 +1,29 @@
+farm_name: Default Wind Farm
+signal_key_parser:
+  kind: delimited
+  signal_prefixes:
+    - NRT
+    - X/
+    - Y/
+    - Z/
+derived_signal_strategies:
+  acceleration/yaw_transformation:
+    kind: level_based
+    suffixes:
+      - FA
+      - SS
+    parent_signals_builder: parent_signals_from_level
+    calibration_fields_builder: yaw_calibration_fields
+  strain/bending_moment:
+    kind: level_based
+    suffixes:
+      - N
+      - Mtl
+      - Mtn
+      - DEG090_0
+      - DEG000_0
+    signal_name_builder: default_strain_signal_name
+    parent_signals_builder: parent_signals_from_nested_sensors
+    calibration_fields_builder: strain_calibration_fields
+postprocessors:
+  - default_signal_postprocessor

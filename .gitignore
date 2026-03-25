@@ -1,0 +1,59 @@
+# Packages
+__pycache__
+
+# Unit test / coverage reports
+.coverage
+.pytest_cache
+.nox
+.hypothesis/
+.cache/
+site/
+htmlcov/
+
+# Log files
+*.log
+
+# Environment vars files
+.env
+
+# Pyenv
+.python-version
+
+# Environment directories
+.venv/
+
+# Hypothesis
+.hypothesis/
+
+# To do
+.todo
+
+# Documentation
+docs/_build/
+docs/generated/
+site/
+
+# Linter/formatter
+.ruff_cache/
+
+# OS specific
+.DS_Store
+
+.vscode/
+
+# binaries
+dist/
+build/
+
+# Squad: ignore runtime state (logs, inbox, sessions)
+.squad/orchestration-log/
+.squad/log/
+.squad/decisions/inbox/
+.squad/sessions/
+# Squad: SubSquad activation file (local to this machine)
+.squad-workstream
+
+# Data
+data/
+**/data/
+!**/data/.gitkeep
