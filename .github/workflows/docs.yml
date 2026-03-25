@@ -69,7 +69,7 @@ on:
         default: true
 
 concurrency:
-  group: docs-${{ '{{ inputs.docs_version || github.ref }} '}}
+  group: docs-${{ inputs.docs_version || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -84,7 +84,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ '{{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }} '}}
+          ref: ${{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }}
           fetch-depth: 0
       - name: Set up Python "3.14"
         uses: actions/setup-python@v5
@@ -104,12 +104,12 @@ jobs:
       - name: Resolve docs publication arguments
         id: docs_args
         env:
-          INPUT_TARGET_REF: ${{ '{{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }} '}}
-          INPUT_PUBLISH_MODE: ${{ '{{ inputs.publish_mode || github.event.inputs.publish_mode || 'manual' }} '}}
-          INPUT_CONFIRM_PUBLISH: ${{ '{{ inputs.confirm_publish || github.event.inputs.confirm_publish || 'false' }} '}}
-          INPUT_DOCS_VERSION: ${{ '{{ inputs.docs_version || github.event.inputs.docs_version || 'dev' }} '}}
-          INPUT_DOCS_ALIAS: ${{ '{{ inputs.docs_alias || github.event.inputs.docs_alias || 'dev' }} '}}
-          INPUT_SET_DEFAULT: ${{ '{{ inputs.set_default || github.event.inputs.set_default || 'true' }} '}}
+          INPUT_TARGET_REF: ${{ inputs.target_ref || github.event.inputs.target_ref || github.ref_name }}
+          INPUT_PUBLISH_MODE: ${{ inputs.publish_mode || github.event.inputs.publish_mode || 'manual' }}
+          INPUT_CONFIRM_PUBLISH: ${{ inputs.confirm_publish || github.event.inputs.confirm_publish || 'false' }}
+          INPUT_DOCS_VERSION: ${{ inputs.docs_version || github.event.inputs.docs_version || 'dev' }}
+          INPUT_DOCS_ALIAS: ${{ inputs.docs_alias || github.event.inputs.docs_alias || 'dev' }}
+          INPUT_SET_DEFAULT: ${{ inputs.set_default || github.event.inputs.set_default || 'true' }}
         run: |
           echo "target_ref=${INPUT_TARGET_REF}" >> "$GITHUB_OUTPUT"
           echo "publish_mode=${INPUT_PUBLISH_MODE}" >> "$GITHUB_OUTPUT"
@@ -120,22 +120,22 @@ jobs:
       - name: Deploy versioned docs with mike
         run: |
           uv run invoke docs.deploy-version \
-            --version "${{ '{{ steps.docs_args.outputs.version }} '}}" \
-            --alias "${{ '{{ steps.docs_args.outputs.alias }} '}}"
+            --version "${{ steps.docs_args.outputs.version }}" \
+            --alias "${{ steps.docs_args.outputs.alias }}"
       - name: Set default docs version
-        if: ${{ '{{ steps.docs_args.outputs.set_default == 'true' }} '}}
+        if: ${{ steps.docs_args.outputs.set_default == 'true' }}
         run: |
           uv run invoke docs.set-default-version \
-            --version "${{ '{{ steps.docs_args.outputs.version }} '}}"
+            --version "${{ steps.docs_args.outputs.version }}"
       - name: Summarize docs publish
         run: |
           {
             echo "## Documentation Publish"
             echo
-            echo "- Source ref: ${{ '{{ steps.docs_args.outputs.target_ref }} '}}"
-            echo "- Publish mode: ${{ '{{ steps.docs_args.outputs.publish_mode }} '}}"
-            echo "- Publish confirmed: ${{ '{{ steps.docs_args.outputs.confirm_publish }} '}}"
-            echo "- Docs version: ${{ '{{ steps.docs_args.outputs.version }} '}}"
-            echo "- Docs alias: ${{ '{{ steps.docs_args.outputs.alias }} '}}"
-            echo "- Default version updated: ${{ '{{ steps.docs_args.outputs.set_default }} '}}"
+            echo "- Source ref: ${{ steps.docs_args.outputs.target_ref }}"
+            echo "- Publish mode: ${{ steps.docs_args.outputs.publish_mode }}"
+            echo "- Publish confirmed: ${{ steps.docs_args.outputs.confirm_publish }}"
+            echo "- Docs version: ${{ steps.docs_args.outputs.version }}"
+            echo "- Docs alias: ${{ steps.docs_args.outputs.alias }}"
+            echo "- Default version updated: ${{ steps.docs_args.outputs.set_default }}"
           } >> "$GITHUB_STEP_SUMMARY"

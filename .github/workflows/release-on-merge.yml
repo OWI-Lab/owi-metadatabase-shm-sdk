@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   prepare-release-pr:
-    if: ${{ '{{ github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'release/v') }} '}}
+    if: ${{ github.event.pull_request.merged == true && !startsWith(github.event.pull_request.head.ref, 'release/v') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -42,13 +42,13 @@ jobs:
         id: release_plan
         run: |
           python .github/scripts/release_version.py plan \
-            --labels-json '${{ '{{ toJson(github.event.pull_request.labels.*.name) }} '}}' \
+            --labels-json '${{ toJson(github.event.pull_request.labels.*.name) }}' \
             --github-output "$GITHUB_OUTPUT"
 
       - name: Fail if tag already exists
         run: |
-          if git rev-parse "v${{ '{{ steps.release_plan.outputs.next_version }} '}}" >/dev/null 2>&1; then
-            echo "Tag v${{ '{{ steps.release_plan.outputs.next_version }} '}} already exists." >&2
+          if git rev-parse "v${{ steps.release_plan.outputs.next_version }}" >/dev/null 2>&1; then
+            echo "Tag v${{ steps.release_plan.outputs.next_version }} already exists." >&2
             exit 1
           fi
 
@@ -61,7 +61,7 @@ jobs:
       - name: Apply release version
         run: |
           python .github/scripts/release_version.py apply \
-            --new-version "${{ '{{ steps.release_plan.outputs.next_version }} '}}"
+            --new-version "${{ steps.release_plan.outputs.next_version }}"
 
       - name: Configure git
         run: |
@@ -72,15 +72,15 @@ jobs:
         id: release_pr
         uses: peter-evans/create-pull-request@v7
         with:
-          branch: release/v${{ '{{ steps.release_plan.outputs.next_version }} '}}
+          branch: release/v${{ steps.release_plan.outputs.next_version }}
           delete-branch: true
-          commit-message: Bumpversion ${{ '{{ steps.release_plan.outputs.current_version }} '}} -> v${{ '{{ steps.release_plan.outputs.next_version }} '}}
-          title: Bumpversion ${{ '{{ steps.release_plan.outputs.current_version }} '}} -> v${{ '{{ steps.release_plan.outputs.next_version }} '}}
+          commit-message: Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}
+          title: Bumpversion ${{ steps.release_plan.outputs.current_version }} -> v${{ steps.release_plan.outputs.next_version }}
           body: |
-            Automated release PR for version v${{ '{{ steps.release_plan.outputs.next_version }} '}}.
+            Automated release PR for version v${{ steps.release_plan.outputs.next_version }}.
 
-            Source merged PR: #${{ '{{ github.event.pull_request.number }} '}}
-            Release bump: ${{ '{{ steps.release_plan.outputs.bump_type }} '}}
+            Source merged PR: #${{ github.event.pull_request.number }}
+            Release bump: ${{ steps.release_plan.outputs.bump_type }}
           add-paths: |
             .bumpversion.cfg
             GitVersion.yml
@@ -91,11 +91,11 @@ jobs:
 
       - name: Enable release PR auto-merge
         id: enable_automerge
-        if: ${{ '{{ steps.release_pr.outputs.pull-request-number != '' }} '}}
+        if: ${{ steps.release_pr.outputs.pull-request-number != '' }}
         continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          pull-request-number: ${{ '{{ steps.release_pr.outputs.pull-request-number }} '}}
+          pull-request-number: ${{ steps.release_pr.outputs.pull-request-number }}
           merge-method: squash
 
       - name: Summarize release preparation
@@ -103,14 +103,14 @@ jobs:
           {
             echo "## Release PR Prepared"
             echo
-            echo "- Merged pull request: #${{ '{{ github.event.pull_request.number }} '}}"
-            echo "- Release bump: ${{ '{{ steps.release_plan.outputs.bump_type }} '}}"
-            echo "- Target version: v${{ '{{ steps.release_plan.outputs.next_version }} '}}"
-            echo "- Release PR operation: ${{ '{{ steps.release_pr.outputs.pull-request-operation || 'none' }} '}}"
-            echo "- Release PR: ${{ '{{ steps.release_pr.outputs.pull-request-url || 'not created' }} '}}"
-            if [[ "${{ '{{ steps.enable_automerge.outcome || 'skipped' }} '}}" == "success" ]]; then
+            echo "- Merged pull request: #${{ github.event.pull_request.number }}"
+            echo "- Release bump: ${{ steps.release_plan.outputs.bump_type }}"
+            echo "- Target version: v${{ steps.release_plan.outputs.next_version }}"
+            echo "- Release PR operation: ${{ steps.release_pr.outputs.pull-request-operation || 'none' }}"
+            echo "- Release PR: ${{ steps.release_pr.outputs.pull-request-url || 'not created' }}"
+            if [[ "${{ steps.enable_automerge.outcome || 'skipped' }}" == "success" ]]; then
               echo "- Release PR auto-merge: enabled"
-            elif [[ "${{ '{{ steps.release_pr.outputs.pull-request-number }} '}}" != "" ]]; then
+            elif [[ "${{ steps.release_pr.outputs.pull-request-number }}" != "" ]]; then
               echo "- Release PR auto-merge: not enabled by workflow"
               echo "- Auto-merge note: repository auto-merge being enabled is not sufficient when GITHUB_TOKEN is not authorized on the protected main branch"
             else
@@ -119,10 +119,10 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   tag-release:
-    if: ${{ '{{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }} '}}
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ '{{ steps.release_tag.outputs.tag }} '}}
+      tag: ${{ steps.release_tag.outputs.tag }}
     steps:
       - name: Checkout main
         uses: actions/checkout@v6
@@ -133,22 +133,22 @@ jobs:
       - name: Resolve release tag
         id: release_tag
         run: |
-          tag="${{ '{{ github.event.pull_request.head.ref }} '}}"
+          tag="${{ github.event.pull_request.head.ref }}"
           tag="${tag#release/}"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
 
       - name: Fail if tag already exists
         run: |
-          if git rev-parse "${{ '{{ steps.release_tag.outputs.tag }} '}}" >/dev/null 2>&1; then
-            echo "Tag ${{ '{{ steps.release_tag.outputs.tag }} '}} already exists." >&2
+          if git rev-parse "${{ steps.release_tag.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ steps.release_tag.outputs.tag }} already exists." >&2
             exit 1
           fi
 
       - name: Verify merged version matches tag
         run: |
           project_version="$(sed -n 's/^version = "\([0-9][0-9.]*\)"$/\1/p' pyproject.toml | head -n1)"
-          if [[ "v${project_version}" != "${{ '{{ steps.release_tag.outputs.tag }} '}}" ]]; then
-            echo "Expected pyproject version v${project_version} to match ${{ '{{ steps.release_tag.outputs.tag }} '}}." >&2
+          if [[ "v${project_version}" != "${{ steps.release_tag.outputs.tag }}" ]]; then
+            echo "Expected pyproject version v${project_version} to match ${{ steps.release_tag.outputs.tag }}." >&2
             exit 1
           fi
 
@@ -159,20 +159,20 @@ jobs:
 
       - name: Create and push release tag
         run: |
-          git tag -a "${{ '{{ steps.release_tag.outputs.tag }} '}}" -m "Release ${{ '{{ steps.release_tag.outputs.tag }} '}}"
-          git push origin "${{ '{{ steps.release_tag.outputs.tag }} '}}"
+          git tag -a "${{ steps.release_tag.outputs.tag }}" -m "Release ${{ steps.release_tag.outputs.tag }}"
+          git push origin "${{ steps.release_tag.outputs.tag }}"
 
       - name: Summarize release tag
         run: |
           {
             echo "## Release Tagged"
             echo
-            echo "- Merged release PR: #${{ '{{ github.event.pull_request.number }} '}}"
-            echo "- Published tag trigger: ${{ '{{ steps.release_tag.outputs.tag }} '}}"
+            echo "- Merged release PR: #${{ github.event.pull_request.number }}"
+            echo "- Published tag trigger: ${{ steps.release_tag.outputs.tag }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
   dispatch-publish:
-    if: ${{ '{{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }} '}}
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v') }}
     needs: [tag-release]
     permissions:
       actions: write
@@ -186,11 +186,11 @@ jobs:
 
       - name: Dispatch publish workflow for release tag
         env:
-          GH_TOKEN: ${{ '{{ github.token }} '}}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run publish.yml \
-            --ref "${{ '{{ needs.tag-release.outputs.tag }} '}}" \
-            -f target_ref="${{ '{{ needs.tag-release.outputs.tag }} '}}" \
+            --ref "${{ needs.tag-release.outputs.tag }}" \
+            -f target_ref="${{ needs.tag-release.outputs.tag }}" \
             -f publish_mode=release-tag \
             -f confirm_publish=true
 
@@ -199,7 +199,7 @@ jobs:
           {
             echo "## Publish Dispatched"
             echo
-            echo "- Release tag: ${{ '{{ needs.tag-release.outputs.tag }} '}}"
+            echo "- Release tag: ${{ needs.tag-release.outputs.tag }}"
             echo "- Publish workflow: publish.yml"
             echo "- Trigger: workflow_dispatch"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 concurrency:
-  group: ci-${{ '{{ github.ref }} '}}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test:
-    if: ${{ '{{ ! contains(github.event.head_commit.message, 'Bumpversion') }} '}}
+    if: ${{ ! contains(github.event.head_commit.message, 'Bumpversion') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,14 +30,14 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
-      - name: Set up Python ${{ '{{ matrix.python-version }} '}}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ '{{ matrix.python-version }} '}}
+          python-version: ${{ matrix.python-version }}
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: ${{ '{{ matrix.python-version }} '}}
+          python-version: ${{ matrix.python-version }}
           enable-cache: true
       - name: Install dependencies
         run: uv sync --dev
@@ -47,11 +47,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-html-${{ '{{ matrix.python-version }} '}}
+          name: coverage-html-${{ matrix.python-version }}
           path: _build/htmlcov
 
   quality:
-    if: ${{ '{{ ! contains(github.event.head_commit.message, 'Bumpversion') }} '}}
+    if: ${{ ! contains(github.event.head_commit.message, 'Bumpversion') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -71,7 +71,7 @@ jobs:
         run: uv run invoke qa.all
 
   docs:
-    if: ${{ '{{ ! contains(github.event.head_commit.message, 'Bumpversion') }} '}}
+    if: ${{ ! contains(github.event.head_commit.message, 'Bumpversion') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
