@@ -149,7 +149,7 @@ Full documentation is available at
 
 ```bash
 uv sync --all-packages --all-extras --all-groups
-uv run invoke qa.all
+uv run invoke qa
 uv run invoke test.all
 uv run invoke docs.build
 cd scripts

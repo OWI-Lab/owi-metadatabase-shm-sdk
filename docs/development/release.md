@@ -18,7 +18,7 @@ If no release label is present, the workflow defaults to a patch release.
 ## Workflow Details
 
 - Pull requests to `main` run `Release Preview`, which resolves the release label and shows the version that would be published after merge.
-- Merged pull requests to `main` run `Release On Merge`, which reruns the release checks with `uv sync --dev --locked`, `uv run invoke test.run`, `uv run invoke qa.all`, and `uv run invoke docs.build` before creating the release commit and tag.
+- Merged pull requests to `main` run `Release On Merge`, which reruns the release checks with `uv sync --dev --locked`, `uv run invoke test.run`, `uv run invoke qa`, and `uv run invoke docs.build` before creating the release commit and tag.
 - Tag pushes matching `v*` keep using the existing documentation workflow to deploy docs, publish the package to PyPI, and create the GitHub release.
 - `Publish Python package` also supports a manual `workflow_dispatch` run from `main` as a fallback when you need to publish the current branch state directly to PyPI without creating a tag or a release commit.
 
