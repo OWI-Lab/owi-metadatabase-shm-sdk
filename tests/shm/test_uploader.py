@@ -72,8 +72,6 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
                         "t_ref": 21.5,
                         "gauge_correction": 0.2,
                         "lead_correction": {"t_ref": 25.0, "coef": 0.5},
-
-
                     }
                 ],
                 "cwl": [{"time": "24/03/2026 08:30:00", "cwl": 13.4}],
@@ -573,9 +571,7 @@ def test_upload_from_processor_batches_real_config_files_through_public_src_surf
                 {
                     "NRT_WTG_TP_STRAIN_LAT01_DEG000_Y/status": "ok",
                     "NRT_WTG_TP_STRAIN_LAT01_DEG000_Y/offset": 1.2,
-                    "NRT_WTG_TP_STRAIN_LAT01_DEG000_Y/temperature_compensation": {
-                        "TCSensor": "TC-1"
-                    },
+                    "NRT_WTG_TP_STRAIN_LAT01_DEG000_Y/temperature_compensation": {"TCSensor": "TC-1"},
                 }
             ]
         ),
@@ -618,9 +614,7 @@ def test_upload_from_processor_batches_real_config_files_through_public_src_surf
         projectsite="Project A",
         processor=cast(SignalConfigUploadSource, processor),
         assetlocations_by_turbine={"T01": "WTG-01"},
-        sensor_serial_numbers_by_turbine={
-            "T01": {"NRT_WTG_TP_STRAIN_LAT01_DEG000_Y": 88}
-        },
+        sensor_serial_numbers_by_turbine={"T01": {"NRT_WTG_TP_STRAIN_LAT01_DEG000_Y": 88}},
         temperature_compensation_signal_ids_by_turbine={"T01": {"TC-1": 909}},
     )
 

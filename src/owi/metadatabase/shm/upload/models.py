@@ -12,7 +12,7 @@ SignalConfigMap = Mapping[str, Mapping[str, Any]]
 SignalConfigMapByTurbine = Mapping[str, SignalConfigMap]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class AssetSignalUploadRequest:
     """Input data for uploading one asset's SHM signals.
 
@@ -121,7 +121,7 @@ class AssetSignalUploadRequest:
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class AssetSignalUploadResult:
     """Upload result for one asset.
 

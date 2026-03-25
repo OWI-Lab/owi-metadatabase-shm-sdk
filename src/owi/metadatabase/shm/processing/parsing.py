@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional, Union
 
-type JsonScalar = str | int | float | bool | None
-type JsonValue = JsonScalar | list[JsonValue] | dict[str, JsonValue]
-type LegacyRecord = dict[str, Any]
-type LegacySignalMap = dict[str, LegacyRecord]
+JsonScalar = Optional[Union[str, int, float, bool]]
+JsonValue = Union[JsonScalar, list["JsonValue"], dict[str, "JsonValue"]]
+LegacyRecord = dict[str, Any]
+LegacySignalMap = dict[str, LegacyRecord]
 
 
 def _coerce_mapping(value: Any, *, context: str) -> Mapping[str, Any]:
@@ -30,7 +30,7 @@ def _coerce_string(value: Any, *, context: str) -> str:
     return value
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SignalEventKey:
     """Parsed signal-property key.
 
@@ -46,7 +46,7 @@ class SignalEventKey:
     property_name: str
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DelimitedSignalKeyParser:
     """Parse delimited signal-property keys.
 

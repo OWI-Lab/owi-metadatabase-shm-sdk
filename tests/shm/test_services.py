@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, Optional, Union
 
 import pandas as pd
 
@@ -9,14 +9,16 @@ from owi.metadatabase.shm.services import SensorService, ShmEntityService
 
 class StubRepository:
     def __init__(self) -> None:
-        self.last_create: tuple[ShmEntityName | str, Mapping[str, Any], Mapping[str, Any] | None] | None = None
+        self.last_create: Optional[tuple[Union[ShmEntityName, str], Mapping[str, Any], Optional[Mapping[str, Any]]]] = (
+            None
+        )
 
-    def list_records(self, entity_name: ShmEntityName | str, **filters: Any) -> pd.DataFrame:
+    def list_records(self, entity_name: "ShmEntityName | str", **filters: Any) -> pd.DataFrame:
         assert entity_name == ShmEntityName.SENSOR_TYPE
         assert filters == {"name": "393B04"}
         return pd.DataFrame([{"id": 2, "name": "393B04", "type": "ACC"}])
 
-    def get_record(self, entity_name: ShmEntityName | str, **filters: Any) -> Mapping[str, Any]:
+    def get_record(self, entity_name: "ShmEntityName | str", **filters: Any) -> "Mapping[str, Any]":
         assert entity_name == ShmEntityName.SENSOR_TYPE
         assert filters == {"name": "393B04"}
         return {
@@ -26,10 +28,10 @@ class StubRepository:
 
     def create_record(
         self,
-        entity_name: ShmEntityName | str,
-        payload: Mapping[str, Any],
-        files: Mapping[str, Any] | None = None,
-    ) -> Mapping[str, Any]:
+        entity_name: "ShmEntityName | str",
+        payload: "Mapping[str, Any]",
+        files: "Mapping[str, Any] | None" = None,
+    ) -> "Mapping[str, Any]":
         self.last_create = (entity_name, payload, files)
         return {
             "exists": True,

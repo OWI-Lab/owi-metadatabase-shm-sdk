@@ -45,14 +45,12 @@ class ParentGeometryLookupClient(Protocol):
         """Return a subassembly lookup response."""
 
 
-
 @dataclass(frozen=True)
 class LookupRecord:
     """Normalized lookup record returned by SHM services."""
 
     data: pd.DataFrame
     record_id: int | None = None
-
 
 
 @dataclass(frozen=True)

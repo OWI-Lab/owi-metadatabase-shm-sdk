@@ -10,7 +10,7 @@ _ALLOWED_ORIENTATIONS: Final[frozenset[str]] = frozenset({"0", "T", "X", "Y", "Z
 _NUMBER_PATTERN: Final[re.Pattern[str]] = re.compile(r"\d+")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class LegacySignalIdentifier:
     """Parsed representation of an SHM signal identifier."""
 

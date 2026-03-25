@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import textwrap
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -14,6 +16,7 @@ from owi.metadatabase.shm import (
     SignalProcessorSpec,
     load_signal_processor_spec,
 )
+from owi.metadatabase.shm.processing.parsing import JsonValue
 
 
 def _packaged_processor_spec_path() -> Path:
@@ -171,10 +174,12 @@ def test_configured_processor_accepts_custom_farm_rules() -> None:
     def build_signal_name(level: str, suffix: str) -> str:
         return f"{level}__{suffix}"
 
-    def build_parent_signals(payload: dict[str, object], level: str) -> tuple[str, ...]:
-        return tuple(payload[level])
+    def build_parent_signals(payload: Mapping[str, Any], level: str) -> tuple[str, ...]:
+        parent_signals = payload[level]
+        assert isinstance(parent_signals, list)
+        return tuple(str(signal_name) for signal_name in parent_signals)
 
-    def build_calibration(payload: dict[str, object], level: str) -> dict[str, object]:
+    def build_calibration(payload: Mapping[str, Any], level: str) -> dict[str, JsonValue]:
         return {"gain": payload["gain"], "level": level}
 
     processor = ConfiguredSignalConfigProcessor(
@@ -269,11 +274,7 @@ def test_configured_processor_loads_yaml_spec(tmp_path) -> None:
 
     signals, derived_signals = result.to_legacy_data()
 
-    assert signals == {
-        "WF_SIG": {
-            "status": [{"time": "01/01/1972 00:00", "status": "ok"}]
-        }
-    }
+    assert signals == {"WF_SIG": {"status": [{"time": "01/01/1972 00:00", "status": "ok"}]}}
     assert derived_signals == {
         "WF_SIG_AVG": {
             "data": {"name": "custom/summary"},

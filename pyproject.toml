@@ -1,13 +1,13 @@
 [project]
 name = "owi-metadatabase-shm"
 version = "0.1.0"
-description = "SHM  extension for OWI Metadatabase SDK"
+description = "SHM extension for OWI Metadatabase SDK"
 authors = [
     { name = "Pietro D'Antuono", email = "pietro.dantuono@vub.be" }
 ]
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.9,<3.15"
 
 keywords = ["owimetadatabase", "extension", "shm"]
 
@@ -20,13 +20,19 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.14",
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
 dependencies = [
-    "owi-metadatabase>=0.1.2",
+    "owi-metadatabase>=0.1.4",
     "pandas>=2.0.0",
     "pydantic>=2.11.0",
+    "python-dateutil>=2.9.0",
     "PyYAML>=6.0.3",
     "requests>=2.32.0",
 ]
@@ -38,7 +44,8 @@ dev = [
     {include-group = "typing"},
     {include-group = "docs"},
     {include-group = "dev-tools"},
-    "ipykernel>=7.2.0",
+    "ipykernel< 7.2.0 ; python_version < '3.10'",
+    "ipykernel>=7.2.0 ; python_version >= '3.10'",
     "jupyter>=1.1.1",
     "nbconvert>=7.17.0",
 ]
@@ -109,7 +116,7 @@ doctest_optionflags = [
 
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "D", "UP", "B", "C4", "SIM"]

@@ -25,7 +25,7 @@ from .strategies import (
 )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SignalProcessorSpec:
     """Farm-specific configuration for signal processing.
 

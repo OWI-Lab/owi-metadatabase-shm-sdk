@@ -9,7 +9,7 @@ from typing import Any
 from .parsing import LegacyRecord, LegacySignalMap
 
 
-@dataclass(slots=True)
+@dataclass
 class ProcessedSignalRecord:
     """Typed in-memory representation of one processed signal.
 
@@ -115,7 +115,7 @@ class ProcessedSignalRecord:
         return data
 
 
-@dataclass(slots=True)
+@dataclass
 class ProcessedDerivedSignalRecord:
     """Typed in-memory representation of one processed derived signal.
 
@@ -196,7 +196,7 @@ class ProcessedDerivedSignalRecord:
         return data
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SignalProcessingResult:
     """Processed signal and derived-signal records.
 
@@ -223,8 +223,5 @@ class SignalProcessingResult:
         """
         return (
             {name: record.to_legacy_dict() for name, record in self.signals.items()},
-            {
-                name: record.to_legacy_dict()
-                for name, record in self.derived_signals.items()
-            },
+            {name: record.to_legacy_dict() for name, record in self.derived_signals.items()},
         )

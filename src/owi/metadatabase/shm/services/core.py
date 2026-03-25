@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 import pandas as pd
 
@@ -184,7 +184,7 @@ class SensorService:
         return cast(list[SensorTypeRecord], self.entity_service.list_records(ShmEntityName.SENSOR_TYPE, filters))
 
     def get_sensor_type(self, filters: ShmQuery | Mapping[str, Any] | None = None) -> SensorTypeRecord | None:
-        return cast(SensorTypeRecord | None, self.entity_service.get_record(ShmEntityName.SENSOR_TYPE, filters))
+        return cast(Optional[SensorTypeRecord], self.entity_service.get_record(ShmEntityName.SENSOR_TYPE, filters))
 
     def create_sensor_type(
         self,
@@ -192,7 +192,7 @@ class SensorService:
         files: Mapping[str, Any] | None = None,
     ) -> SensorTypeRecord | None:
         return cast(
-            SensorTypeRecord | None,
+            Optional[SensorTypeRecord],
             self.entity_service.create_record(ShmEntityName.SENSOR_TYPE, payload, files=files),
         )
 
@@ -200,10 +200,10 @@ class SensorService:
         return cast(list[SensorRecord], self.entity_service.list_records(ShmEntityName.SENSOR, filters))
 
     def get_sensor(self, filters: ShmQuery | Mapping[str, Any] | None = None) -> SensorRecord | None:
-        return cast(SensorRecord | None, self.entity_service.get_record(ShmEntityName.SENSOR, filters))
+        return cast(Optional[SensorRecord], self.entity_service.get_record(ShmEntityName.SENSOR, filters))
 
     def create_sensor(self, payload: Mapping[str, Any] | SensorRecord) -> SensorRecord | None:
-        return cast(SensorRecord | None, self.entity_service.create_record(ShmEntityName.SENSOR, payload))
+        return cast(Optional[SensorRecord], self.entity_service.create_record(ShmEntityName.SENSOR, payload))
 
     def list_sensor_calibrations(
         self,
@@ -219,7 +219,7 @@ class SensorService:
         filters: ShmQuery | Mapping[str, Any] | None = None,
     ) -> SensorCalibrationRecord | None:
         return cast(
-            SensorCalibrationRecord | None,
+            Optional[SensorCalibrationRecord],
             self.entity_service.get_record(ShmEntityName.SENSOR_CALIBRATION, filters),
         )
 
@@ -229,7 +229,7 @@ class SensorService:
         files: Mapping[str, Any] | None = None,
     ) -> SensorCalibrationRecord | None:
         return cast(
-            SensorCalibrationRecord | None,
+            Optional[SensorCalibrationRecord],
             self.entity_service.create_record(ShmEntityName.SENSOR_CALIBRATION, payload, files=files),
         )
 
@@ -244,10 +244,10 @@ class SignalService:
         return cast(list[SignalRecord], self.entity_service.list_records(ShmEntityName.SIGNAL, filters))
 
     def get_signal(self, filters: ShmQuery | Mapping[str, Any] | None = None) -> SignalRecord | None:
-        return cast(SignalRecord | None, self.entity_service.get_record(ShmEntityName.SIGNAL, filters))
+        return cast(Optional[SignalRecord], self.entity_service.get_record(ShmEntityName.SIGNAL, filters))
 
     def create_signal(self, payload: Mapping[str, Any] | SignalRecord) -> SignalRecord | None:
-        return cast(SignalRecord | None, self.entity_service.create_record(ShmEntityName.SIGNAL, payload))
+        return cast(Optional[SignalRecord], self.entity_service.create_record(ShmEntityName.SIGNAL, payload))
 
     def list_signal_history(
         self,
@@ -260,7 +260,7 @@ class SignalService:
         filters: ShmQuery | Mapping[str, Any] | None = None,
     ) -> SignalHistoryRecord | None:
         return cast(
-            SignalHistoryRecord | None,
+            Optional[SignalHistoryRecord],
             self.entity_service.get_record(ShmEntityName.SIGNAL_HISTORY, filters),
         )
 
@@ -269,7 +269,7 @@ class SignalService:
         payload: Mapping[str, Any] | SignalHistoryRecord,
     ) -> SignalHistoryRecord | None:
         return cast(
-            SignalHistoryRecord | None,
+            Optional[SignalHistoryRecord],
             self.entity_service.create_record(ShmEntityName.SIGNAL_HISTORY, payload),
         )
 
@@ -287,7 +287,7 @@ class SignalService:
         filters: ShmQuery | Mapping[str, Any] | None = None,
     ) -> SignalCalibrationRecord | None:
         return cast(
-            SignalCalibrationRecord | None,
+            Optional[SignalCalibrationRecord],
             self.entity_service.get_record(ShmEntityName.SIGNAL_CALIBRATION, filters),
         )
 
@@ -296,7 +296,7 @@ class SignalService:
         payload: Mapping[str, Any] | SignalCalibrationRecord,
     ) -> SignalCalibrationRecord | None:
         return cast(
-            SignalCalibrationRecord | None,
+            Optional[SignalCalibrationRecord],
             self.entity_service.create_record(ShmEntityName.SIGNAL_CALIBRATION, payload),
         )
 
@@ -314,7 +314,7 @@ class SignalService:
         filters: ShmQuery | Mapping[str, Any] | None = None,
     ) -> DerivedSignalRecord | None:
         return cast(
-            DerivedSignalRecord | None,
+            Optional[DerivedSignalRecord],
             self.entity_service.get_record(ShmEntityName.DERIVED_SIGNAL, filters),
         )
 
@@ -323,7 +323,7 @@ class SignalService:
         payload: Mapping[str, Any] | DerivedSignalRecord,
     ) -> DerivedSignalRecord | None:
         return cast(
-            DerivedSignalRecord | None,
+            Optional[DerivedSignalRecord],
             self.entity_service.create_record(ShmEntityName.DERIVED_SIGNAL, payload),
         )
 
@@ -341,7 +341,7 @@ class SignalService:
         filters: ShmQuery | Mapping[str, Any] | None = None,
     ) -> DerivedSignalHistoryRecord | None:
         return cast(
-            DerivedSignalHistoryRecord | None,
+            Optional[DerivedSignalHistoryRecord],
             self.entity_service.get_record(ShmEntityName.DERIVED_SIGNAL_HISTORY, filters),
         )
 
@@ -350,7 +350,7 @@ class SignalService:
         payload: Mapping[str, Any] | DerivedSignalHistoryRecord,
     ) -> DerivedSignalHistoryRecord | None:
         return cast(
-            DerivedSignalHistoryRecord | None,
+            Optional[DerivedSignalHistoryRecord],
             self.entity_service.create_record(ShmEntityName.DERIVED_SIGNAL_HISTORY, payload),
         )
 
@@ -368,7 +368,7 @@ class SignalService:
         filters: ShmQuery | Mapping[str, Any] | None = None,
     ) -> DerivedSignalCalibrationRecord | None:
         return cast(
-            DerivedSignalCalibrationRecord | None,
+            Optional[DerivedSignalCalibrationRecord],
             self.entity_service.get_record(ShmEntityName.DERIVED_SIGNAL_CALIBRATION, filters),
         )
 
@@ -377,6 +377,6 @@ class SignalService:
         payload: Mapping[str, Any] | DerivedSignalCalibrationRecord,
     ) -> DerivedSignalCalibrationRecord | None:
         return cast(
-            DerivedSignalCalibrationRecord | None,
+            Optional[DerivedSignalCalibrationRecord],
             self.entity_service.create_record(ShmEntityName.DERIVED_SIGNAL_CALIBRATION, payload),
         )

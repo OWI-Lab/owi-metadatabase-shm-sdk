@@ -280,9 +280,7 @@ class ShmSignalUploader:
             assetlocations_by_turbine=assetlocations_by_turbine,
             permission_group_ids=permission_group_ids,
             sensor_serial_numbers_by_turbine=sensor_serial_numbers_by_turbine,
-            temperature_compensation_signal_ids_by_turbine=(
-                temperature_compensation_signal_ids_by_turbine
-            ),
+            temperature_compensation_signal_ids_by_turbine=(temperature_compensation_signal_ids_by_turbine),
         )
 
     def upload_from_processor_files(
@@ -333,13 +331,9 @@ class ShmSignalUploader:
         {}
         """
         processor.signals_process_data()
-        sensor_serial_numbers_by_turbine = self._resolve_sensor_serial_numbers_by_turbine(
-            path_signal_sensor_map
-        )
-        temperature_compensation_signal_ids_by_turbine = (
-            self._resolve_temperature_compensation_signal_ids_by_turbine(
-                path_sensor_tc_map
-            )
+        sensor_serial_numbers_by_turbine = self._resolve_sensor_serial_numbers_by_turbine(path_signal_sensor_map)
+        temperature_compensation_signal_ids_by_turbine = self._resolve_temperature_compensation_signal_ids_by_turbine(
+            path_sensor_tc_map
         )
         return self.upload_turbines(
             projectsite=projectsite,
@@ -348,9 +342,7 @@ class ShmSignalUploader:
             assetlocations_by_turbine=assetlocations_by_turbine,
             permission_group_ids=permission_group_ids,
             sensor_serial_numbers_by_turbine=sensor_serial_numbers_by_turbine,
-            temperature_compensation_signal_ids_by_turbine=(
-                temperature_compensation_signal_ids_by_turbine
-            ),
+            temperature_compensation_signal_ids_by_turbine=(temperature_compensation_signal_ids_by_turbine),
         )
 
     @staticmethod
@@ -382,16 +374,12 @@ class ShmSignalUploader:
             if not isinstance(turbine, str):
                 raise ShmUploadError("Signal-sensor map keys must be turbine names.")
             if not isinstance(turbine_map, Mapping):
-                raise ShmUploadError(
-                    f"Signal-sensor map for turbine '{turbine}' must be an object keyed by signal id."
-                )
+                raise ShmUploadError(f"Signal-sensor map for turbine '{turbine}' must be an object keyed by signal id.")
 
             resolved[turbine] = {}
             for signal_name, sensor_lookup in turbine_map.items():
                 if not isinstance(signal_name, str):
-                    raise ShmUploadError(
-                        f"Signal-sensor map for turbine '{turbine}' must use string signal ids."
-                    )
+                    raise ShmUploadError(f"Signal-sensor map for turbine '{turbine}' must use string signal ids.")
                 if not isinstance(sensor_lookup, Mapping):
                     raise ShmUploadError(
                         f"Sensor lookup for signal '{signal_name}' on turbine '{turbine}' must be an object."
@@ -441,9 +429,7 @@ class ShmSignalUploader:
         resolved: dict[str, dict[str, int]] = {}
         for turbine, signal_names in raw_map.items():
             if not isinstance(turbine, str):
-                raise ShmUploadError(
-                    "Temperature-compensation map keys must be turbine names."
-                )
+                raise ShmUploadError("Temperature-compensation map keys must be turbine names.")
             if not isinstance(signal_names, Sequence) or isinstance(signal_names, (str, bytes)):
                 raise ShmUploadError(
                     f"Temperature-compensation map for turbine '{turbine}' must be a list of signal ids."
@@ -458,10 +444,7 @@ class ShmSignalUploader:
                 result = self.shm_api.get_signal(signal_name)
                 resolved[turbine][signal_name] = self._require_existing_result_id(
                     result,
-                    label=(
-                        f"temperature-compensation signal '{signal_name}' on turbine "
-                        f"'{turbine}'"
-                    ),
+                    label=(f"temperature-compensation signal '{signal_name}' on turbine '{turbine}'"),
                 )
 
         return resolved
@@ -598,17 +581,13 @@ class ShmSignalUploader:
         parent_signal_ids: list[int] = []
         for parent_signal_name in parent_signals:
             if not isinstance(parent_signal_name, str):
-                raise ParentSignalLookupError(
-                    "Derived signal parent_signals must be a sequence of signal identifiers."
-                )
+                raise ParentSignalLookupError("Derived signal parent_signals must be a sequence of signal identifiers.")
 
             parent_signal_id = signal_ids_by_name.get(parent_signal_name)
             if parent_signal_id is None:
                 result = self.shm_api.get_signal(parent_signal_name)
                 if not result.get("exists", False):
-                    raise ParentSignalLookupError(
-                        f"Could not resolve parent signal '{parent_signal_name}'."
-                    )
+                    raise ParentSignalLookupError(f"Could not resolve parent signal '{parent_signal_name}'.")
                 parent_signal_id = self._require_result_id(
                     result,
                     label=f"parent signal '{parent_signal_name}'",

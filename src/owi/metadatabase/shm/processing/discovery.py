@@ -36,7 +36,7 @@ class ConfigDiscovery(ABC):
         """
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class JsonStemConfigDiscovery(ConfigDiscovery):
     """Discover JSON configuration files by stem name.
 
@@ -83,9 +83,7 @@ class JsonStemConfigDiscovery(ConfigDiscovery):
         root = Path(path_configs)
         if root.is_dir():
             available = {
-                path.stem: path
-                for path in sorted(root.iterdir())
-                if path.is_file() and path.suffix == self.suffix
+                path.stem: path for path in sorted(root.iterdir()) if path.is_file() and path.suffix == self.suffix
             }
         elif root.is_file() and root.suffix == self.suffix:
             available = {root.stem: root}

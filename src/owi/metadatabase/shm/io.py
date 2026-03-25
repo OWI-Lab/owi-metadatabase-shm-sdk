@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional, Union
 
 import pandas as pd
 import requests
@@ -24,7 +24,8 @@ from owi.metadatabase._utils.exceptions import (  # ty: ignore[unresolved-import
 )
 from owi.metadatabase.io import API  # ty: ignore[unresolved-import]
 
-QueryValue = str | float | int | Sequence[str | float | int] | None
+QueryScalar = Union[str, float, int]
+QueryValue = Optional[Union[QueryScalar, Sequence[QueryScalar]]]
 
 
 @dataclass(frozen=True)

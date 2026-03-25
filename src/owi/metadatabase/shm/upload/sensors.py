@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Optional, Protocol
 
 from .errors import ShmUploadError
 from .payloads import (
@@ -35,9 +35,7 @@ class ShmSensorUploadClient(Protocol):
         """Resolve one SHM sensor record."""
         ...
 
-    def create_sensor_type(
-        self, payload: Mapping[str, Any], files: Mapping[str, Any] | None = None
-    ) -> dict[str, Any]:
+    def create_sensor_type(self, payload: Mapping[str, Any], files: Mapping[str, Any] | None = None) -> dict[str, Any]:
         """Create a sensor type record."""
         ...
 
@@ -52,7 +50,7 @@ class ShmSensorUploadClient(Protocol):
         ...
 
 
-SensorsDataByTurbine = Mapping[str, Mapping[str, Any] | None]
+SensorsDataByTurbine = Mapping[str, Optional[Mapping[str, Any]]]
 
 
 class ShmSensorUploader:

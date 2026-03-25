@@ -11,15 +11,13 @@ from typing import Any, Final
 from .parsing import JsonValue, _coerce_mapping, _coerce_string, _coerce_string_sequence
 from .records import ProcessedSignalRecord
 
-type SignalNameBuilder = Callable[[str, str], str]
-type ParentSignalsBuilder = Callable[[Mapping[str, Any], str], Sequence[str]]
-type CalibrationFieldsBuilder = Callable[[Mapping[str, Any], str], Mapping[str, JsonValue]]
-type DerivedDataBuilder = Callable[[Mapping[str, Any], str], Mapping[str, JsonValue]]
-type SignalPostprocessor = Callable[[MutableMapping[str, ProcessedSignalRecord]], None]
+SignalNameBuilder = Callable[[str, str], str]
+ParentSignalsBuilder = Callable[[Mapping[str, Any], str], Sequence[str]]
+CalibrationFieldsBuilder = Callable[[Mapping[str, Any], str], Mapping[str, JsonValue]]
+DerivedDataBuilder = Callable[[Mapping[str, Any], str], Mapping[str, JsonValue]]
+SignalPostprocessor = Callable[[MutableMapping[str, ProcessedSignalRecord]], None]
 
-_DEFAULT_STRAIN_VECTOR_SUFFIXES: Final[frozenset[str]] = frozenset(
-    {"DEG090_0", "DEG000_0"}
-)
+_DEFAULT_STRAIN_VECTOR_SUFFIXES: Final[frozenset[str]] = frozenset({"DEG090_0", "DEG000_0"})
 
 
 def _default_level_signal_name(level: str, suffix: str) -> str:
@@ -27,7 +25,9 @@ def _default_level_signal_name(level: str, suffix: str) -> str:
 
 
 def _default_strain_signal_name(
-    level: str, suffix: str, defaults: set[str] = _DEFAULT_STRAIN_VECTOR_SUFFIXES,  # noqa: B006
+    level: str,
+    suffix: str,
+    defaults: frozenset[str] = _DEFAULT_STRAIN_VECTOR_SUFFIXES,
 ) -> str:
     signal_level = level
     if suffix in defaults:
@@ -83,9 +83,7 @@ def _default_signal_postprocessor(
                             row["status"] = record.status_rows[next_index]["status"]
                             indices_to_drop.append(next_index)
                 record.status_rows = [
-                    row
-                    for index, row in enumerate(record.status_rows)
-                    if index not in indices_to_drop
+                    row for index, row in enumerate(record.status_rows) if index not in indices_to_drop
                 ]
 
             temperature_comp = record.scalar_fields.get("temperature_compensation")
@@ -96,7 +94,7 @@ def _default_signal_postprocessor(
                     row["TCSensor"] = tc_sensor
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DerivedSignalUpdate:
     """One derived-signal contribution emitted from a source event.
 
@@ -147,7 +145,7 @@ class DerivedSignalStrategy(ABC):
         """
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class LevelBasedDerivedSignalStrategy(DerivedSignalStrategy):
     """Expand a level-based event into derived signals.
 
@@ -220,11 +218,7 @@ class LevelBasedDerivedSignalStrategy(DerivedSignalStrategy):
                         signal_name=self.signal_name_builder(level, suffix),
                         parent_signals=tuple(self.parent_signals_builder(payload, level)),
                         calibration_fields=dict(self.calibration_fields_builder(payload, level)),
-                        data_fields=(
-                            dict(self.data_builder(payload, level))
-                            if self.data_builder is not None
-                            else {}
-                        ),
+                        data_fields=(dict(self.data_builder(payload, level)) if self.data_builder is not None else {}),
                     )
                 )
         return updates

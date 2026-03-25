@@ -55,9 +55,7 @@ def test_get_asset_context_derives_projectsite_from_asset_lookup() -> None:
     locations_client = Mock()
     geometry_client = Mock()
     locations_client.get_assetlocation_detail.return_value = {
-        "data": pd.DataFrame(
-            [{"id": 11, "title": "Asset-01", "projectsite_name": "Project A"}]
-        ),
+        "data": pd.DataFrame([{"id": 11, "title": "Asset-01", "projectsite_name": "Project A"}]),
         "exists": True,
         "id": 11,
     }

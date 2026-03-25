@@ -13,7 +13,7 @@ In the end, the owi-metadatabase-shm-sdk needs to implement code to GET/POST the
 
 Load the following skills first so the planning work follows the repo’s Python, Zensical, and documentation authoring guidance.
 
-Study the ERD and understand it to create the necessary code, documentation and testing. 
+Study the ERD and understand it to create the necessary code, documentation and testing.
 
 Use the architecture in owi-metadatabase-results (protocols/services/pydantic models/registry/serializers).
 
@@ -269,12 +269,12 @@ Design a clean, simple package structure that preserves 100% of the existing fun
       ----------
      text: str
           text that will be tokenized
-      
+
     Returns
       -------
       list of str
           list of all tokens in the text
-      
+
       Examples
       --------
       >>> from aksara import BaseTokenizer

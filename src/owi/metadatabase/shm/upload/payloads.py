@@ -7,16 +7,16 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, time
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Optional, Union, cast
 
 from dateutil.parser import parse
 
 from ..signal_ids import LegacySignalIdentifier
 from ..upload_context import SignalUploadContext
 
-TimestampValue = str | date | datetime
-JsonScalar = str | int | float | bool | None
-JsonValue = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+TimestampValue = Union[str, date, datetime]
+JsonScalar = Optional[Union[str, int, float, bool]]
+JsonValue = Union[JsonScalar, list["JsonValue"], dict[str, "JsonValue"]]
 
 _GENERAL_SIGNAL_FIELDS = frozenset(
     {
@@ -53,11 +53,7 @@ def _serialize_json_data(data: Mapping[str, JsonValue]) -> str:
 
 
 def _legacy_signal_misc_data(signal_data: Mapping[str, JsonValue]) -> dict[str, JsonValue]:
-    return {
-        field: value
-        for field, value in signal_data.items()
-        if field not in _GENERAL_SIGNAL_FIELDS
-    }
+    return {field: value for field, value in signal_data.items() if field not in _GENERAL_SIGNAL_FIELDS}
 
 
 def _expand_columns(columns: Mapping[str, Sequence[Any]]) -> list[dict[str, Any]]:
@@ -72,7 +68,7 @@ def _expand_columns(columns: Mapping[str, Sequence[Any]]) -> list[dict[str, Any]
     return rows
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SignalPayload:
     """Payload model for signal records."""
 
@@ -111,7 +107,7 @@ class SignalPayload:
         return payload
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SignalHistoryPayload:
     """Payload model for signal history records."""
 
@@ -137,7 +133,7 @@ class SignalHistoryPayload:
         return payload
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class LeadCorrectionPayload:
     """Nested payload model for signal lead correction data."""
 
@@ -148,7 +144,7 @@ class LeadCorrectionPayload:
         return {"t_ref": self.t_ref, "coef": self.coef}
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SignalCalibrationData:
     """Nested payload model for signal calibration data."""
 
@@ -178,7 +174,7 @@ class SignalCalibrationData:
         return payload
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SignalCalibrationPayload:
     """Payload model for signal calibration records."""
 
@@ -242,7 +238,7 @@ class SignalCalibrationPayload:
         }
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DerivedSignalPayload:
     """Payload model for derived signal records."""
 
@@ -280,7 +276,7 @@ class DerivedSignalPayload:
         return payload
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DerivedSignalHistoryPayload:
     """Payload model for derived signal history records."""
 
@@ -300,7 +296,7 @@ class DerivedSignalHistoryPayload:
         }
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DerivedSignalHistoryParentSignalsPatch:
     """Patch payload for linking parent signals to a derived signal history."""
 
@@ -310,7 +306,7 @@ class DerivedSignalHistoryParentSignalsPatch:
         return {"parent_signals": list(self.parent_signals)}
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DerivedSignalCalibrationData:
     """Nested payload model for derived signal calibration data."""
 
@@ -328,7 +324,7 @@ class DerivedSignalCalibrationData:
         return payload
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class DerivedSignalCalibrationPayload:
     """Payload model for derived signal calibration records."""
 
@@ -367,7 +363,7 @@ class DerivedSignalCalibrationPayload:
         }
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SensorTypePayload:
     """Payload model for sensor type records."""
 
@@ -396,7 +392,7 @@ class SensorTypePayload:
         return {"file": (path.name, path.open("rb"))}
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SensorPayload:
     """Payload model for sensor records."""
 
@@ -416,7 +412,7 @@ class SensorPayload:
         }
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class SensorCalibrationPayload:
     """Payload model for sensor calibration records."""
 
@@ -517,9 +513,7 @@ def build_signal_main_payload(
         signal_type=signal.signal_type,
         signal_id=signal.raw,
         sub_assembly=(
-            context.subassembly_id_for(signal.subassembly)
-            if signal.subassembly in {"TP", "TW", "MP"}
-            else None
+            context.subassembly_id_for(signal.subassembly) if signal.subassembly in {"TP", "TW", "MP"} else None
         ),
         heading=signal_data.get("heading"),
         level=signal_data.get("level"),
@@ -549,11 +543,11 @@ def build_signal_status_payloads(
         payloads.append(
             SignalHistoryPayload(
                 signal_id=signal_id,
-                activity_start_timestamp=cast(str | date | datetime, status_row["time"]),
+                activity_start_timestamp=cast(TimestampValue, status_row["time"]),
                 is_latest_status=index == len(statuses) - 1,
                 status=cast(str, status_row["status"]),
                 sensor_serial_number=sensor_serial_number,
-                legacy_signal_id=cast(str | None, status_row.get("name")),
+                legacy_signal_id=cast(Optional[str], status_row.get("name")),
             ).to_payload()
         )
     return payloads
