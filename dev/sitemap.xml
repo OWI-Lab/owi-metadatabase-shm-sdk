@@ -10,6 +10,9 @@
         <loc>https://owi-lab.github.io/owi-metadatabase-shm-sdk/tutorials/first-query/</loc>
       </url>
       <url>
+        <loc>https://owi-lab.github.io/owi-metadatabase-shm-sdk/tutorials/retrieve-data/</loc>
+      </url>
+      <url>
         <loc>https://owi-lab.github.io/owi-metadatabase-shm-sdk/tutorials/upload-sensors/</loc>
       </url>
       <url>
@@ -23,6 +26,12 @@
       </url>
       <url>
         <loc>https://owi-lab.github.io/owi-metadatabase-shm-sdk/how-to/authenticate/</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/owi-metadatabase-shm-sdk/how-to/get-sensor-data/</loc>
+      </url>
+      <url>
+        <loc>https://owi-lab.github.io/owi-metadatabase-shm-sdk/how-to/get-signal-data/</loc>
       </url>
       <url>
         <loc>https://owi-lab.github.io/owi-metadatabase-shm-sdk/how-to/upload-sensor-types/</loc>

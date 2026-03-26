@@ -449,6 +449,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#read-data-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read Data Workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#notebook-workflows" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -564,6 +575,34 @@
     
   
     Your First Query
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./tutorials/retrieve-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Retrieve SHM Data
   
 
     
@@ -765,6 +804,62 @@
     
   
     Authenticate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./how-to/get-sensor-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Get Sensor Data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./how-to/get-signal-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Get Signal Data
   
 
     
@@ -1796,6 +1891,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#read-data-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read Data Workflows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#notebook-workflows" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1861,17 +1967,25 @@ and namespace packaging.</p>
 </ul>
 </div>
 <h2 id="quick-example">Quick Example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">owi.metadatabase.shm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiShmRepository</span><span class="p">,</span> <span class="n">SensorService</span><span class="p">,</span> <span class="n">ShmAPI</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">owi.metadatabase.shm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiShmRepository</span><span class="p">,</span> <span class="n">SensorService</span><span class="p">,</span> <span class="n">ShmAPI</span><span class="p">,</span> <span class="n">ShmEntityService</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">api</span> <span class="o">=</span> <span class="n">ShmAPI</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-api-token&quot;</span><span class="p">)</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">repository</span> <span class="o">=</span> <span class="n">ApiShmRepository</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">service</span> <span class="o">=</span> <span class="n">SensorService</span><span class="p">(</span><span class="n">repository</span><span class="o">=</span><span class="n">repository</span><span class="p">)</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">ping</span><span class="p">())</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get_sensor_type</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;393B04&quot;</span><span class="p">))</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">entity_service</span> <span class="o">=</span> <span class="n">ShmEntityService</span><span class="p">(</span><span class="n">repository</span><span class="o">=</span><span class="n">repository</span><span class="p">)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">service</span> <span class="o">=</span> <span class="n">SensorService</span><span class="p">(</span><span class="n">entity_service</span><span class="o">=</span><span class="n">entity_service</span><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">ping</span><span class="p">())</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get_sensor_type</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;393B04&quot;</span><span class="p">}))</span>
 </span></code></pre></div>
+<h2 id="read-data-workflows">Read Data Workflows<a class="headerlink" href="#read-data-workflows" title="Permanent link">&para;</a></h2>
+<p>If you are using the SHM SDK for queries rather than uploads, start here:</p>
+<ul>
+<li><a href="tutorials/retrieve-data/">Tutorial: Retrieve SHM Data</a></li>
+<li><a href="how-to/get-sensor-data/">How-to: Get Sensor Data</a></li>
+<li><a href="how-to/get-signal-data/">How-to: Get Signal Data</a></li>
+</ul>
 <h2 id="notebook-workflows">Notebook Workflows<a class="headerlink" href="#notebook-workflows" title="Permanent link">&para;</a></h2>
-<p>The repository also includes executable tutorial notebooks in <code>notebooks/</code> for
+<p>The repository also includes executable tutorial notebooks in <code>scripts/</code> for
 sensor and signal upload workflows. They use the bundled Norther example data
 and are suitable both as interactive guides and as executable regression gates.</p>
 

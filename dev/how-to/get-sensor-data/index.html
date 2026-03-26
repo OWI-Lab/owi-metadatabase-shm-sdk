@@ -12,13 +12,13 @@
         <meta name="author" content="Pietro D'Antuono">
       
       
-        <link rel="canonical" href="https://owi-lab.github.io/owi-metadatabase-shm-sdk/how-to/upload-sensor-calibrations/">
+        <link rel="canonical" href="https://owi-lab.github.io/owi-metadatabase-shm-sdk/how-to/get-sensor-data/">
       
       
-        <link rel="prev" href="../upload-sensors/">
+        <link rel="prev" href="../authenticate/">
       
       
-        <link rel="next" href="../process-signal-configs/">
+        <link rel="next" href="../get-signal-data/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Upload Sensor Calibrations - OWI Metadatabase SHM Extension</title>
+        <title>Get Sensor Data - OWI Metadatabase SHM Extension</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#upload-sensor-calibrations" class="md-skip">
+        <a href="#get-sensor-data" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Upload Sensor Calibrations
+              Get Sensor Data
             
           </span>
         </div>
@@ -745,10 +745,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../get-sensor-data/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Get Sensor Data
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
@@ -764,6 +791,93 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-1-query-the-raw-api-transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1: Query the raw API transport
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-2-retrieve-typed-records-with-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2: Retrieve typed records with services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retrieve-one-calibration-row" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrieve one calibration row
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-each-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use each layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related pages
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -857,37 +971,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Upload Sensor Calibrations
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="././" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../upload-sensor-calibrations/" class="md-nav__link">
         
   
   
@@ -903,88 +990,6 @@
   
 
       </a>
-      
-        
-
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Steps
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Steps">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-set-up-the-uploader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Set up the uploader
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-prepare-the-mapping-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Prepare the mapping data
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-upload" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Upload
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1924,52 +1929,57 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#steps" class="md-nav__link">
+  <a href="#option-1-query-the-raw-api-transport" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Steps
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Steps">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-set-up-the-uploader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Set up the uploader
+        Option 1: Query the raw API transport
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#2-prepare-the-mapping-data" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#option-2-retrieve-typed-records-with-services" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Prepare the mapping data
+        Option 2: Retrieve typed records with services
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#3-upload" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#retrieve-one-calibration-row" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Upload
+        Retrieve one calibration row
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-each-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use each layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related pages
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1991,58 +2001,79 @@
   
 
 
-<h1 id="upload-sensor-calibrations">Upload Sensor Calibrations<a class="headerlink" href="#upload-sensor-calibrations" title="Permanent link">&para;</a></h1>
-<p>This guide shows how to upload sensor calibration records with optional PDF
-datasheet attachments.</p>
+<h1 id="get-sensor-data">Get Sensor Data<a class="headerlink" href="#get-sensor-data" title="Permanent link">&para;</a></h1>
+<p>This guide shows how to retrieve sensor-domain data from the SHM extension.
+Use it when you need to inspect sensor types, sensors, or calibrations without
+going through the upload workflows.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Sensors already uploaded (see <a href="../upload-sensors/">Upload Sensors</a>)</li>
-<li>A signal-sensor map linking signal names to sensor lookup parameters</li>
-<li>A signal-calibration map with dates and filenames</li>
-<li>A directory of calibration PDF files</li>
+<li>The SDK installed (<code>pip install owi-metadatabase-shm</code>)</li>
+<li>A valid API token (see <a href="../authenticate/">Authenticate</a>)</li>
+<li>An SHM-enabled API root</li>
 </ul>
-<h2 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h2>
-<h3 id="1-set-up-the-uploader">1. Set up the uploader<a class="headerlink" href="#1-set-up-the-uploader" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">owi.metadatabase.shm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShmAPI</span><span class="p">,</span> <span class="n">ShmSensorUploader</span>
+<h2 id="option-1-query-the-raw-api-transport">Option 1: Query the raw API transport<a class="headerlink" href="#option-1-query-the-raw-api-transport" title="Permanent link">&para;</a></h2>
+<p>Use <code>ShmAPI</code> when you want the backend response as a Pandas <code>DataFrame</code>.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">owi.metadatabase.shm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShmAPI</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">api</span> <span class="o">=</span> <span class="n">ShmAPI</span><span class="p">(</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">api_root</span><span class="o">=</span><span class="s2">&quot;https://owimetadatabase.azurewebsites.net/api/v1&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">api_root</span><span class="o">=</span><span class="s2">&quot;https://owimetadatabase-dev.azurewebsites.net/api/v1&quot;</span><span class="p">,</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-api-token&quot;</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">uploader</span> <span class="o">=</span> <span class="n">ShmSensorUploader</span><span class="p">(</span><span class="n">shm_api</span><span class="o">=</span><span class="n">api</span><span class="p">)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">sensor_type_result</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">list_sensor_types</span><span class="p">()</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">sensor_result</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">list_sensors</span><span class="p">(</span><span class="n">sensor_type_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">calibration_result</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">list_sensor_calibrations</span><span class="p">(</span><span class="n">sensor_id</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">sensor_type_result</span><span class="p">[</span><span class="s2">&quot;exists&quot;</span><span class="p">])</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">sensor_type_result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </span></code></pre></div>
-<h3 id="2-prepare-the-mapping-data">2. Prepare the mapping data<a class="headerlink" href="#2-prepare-the-mapping-data" title="Permanent link">&para;</a></h3>
-<p><strong>Signal-sensor map</strong> — maps each signal to its sensor lookup parameters:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">signal_sensor_map</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="s2">&quot;WTG01&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="s2">&quot;NRT_WTG_TP_ACC_AX&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>            <span class="s2">&quot;sensor_type_id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;393B04&quot;</span><span class="p">},</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>            <span class="s2">&quot;serial_number&quot;</span><span class="p">:</span> <span class="s2">&quot;SN001&quot;</span><span class="p">,</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="p">}</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="p">}</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
+<p>Each list method returns a dictionary with:</p>
+<ul>
+<li><code>data</code>: a Pandas <code>DataFrame</code></li>
+<li><code>exists</code>: whether any rows were returned</li>
+<li><code>response</code>: the raw backend response when available</li>
+</ul>
+<h2 id="option-2-retrieve-typed-records-with-services">Option 2: Retrieve typed records with services<a class="headerlink" href="#option-2-retrieve-typed-records-with-services" title="Permanent link">&para;</a></h2>
+<p>Use the repository and service layer when you want typed records instead of raw
+rows.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">owi.metadatabase.shm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiShmRepository</span><span class="p">,</span> <span class="n">SensorService</span><span class="p">,</span> <span class="n">ShmAPI</span><span class="p">,</span> <span class="n">ShmEntityService</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">api</span> <span class="o">=</span> <span class="n">ShmAPI</span><span class="p">(</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">api_root</span><span class="o">=</span><span class="s2">&quot;https://owimetadatabase-dev.azurewebsites.net/api/v1&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your-api-token&quot;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">repository</span> <span class="o">=</span> <span class="n">ApiShmRepository</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">entity_service</span> <span class="o">=</span> <span class="n">ShmEntityService</span><span class="p">(</span><span class="n">repository</span><span class="o">=</span><span class="n">repository</span><span class="p">)</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">sensor_service</span> <span class="o">=</span> <span class="n">SensorService</span><span class="p">(</span><span class="n">entity_service</span><span class="o">=</span><span class="n">entity_service</span><span class="p">)</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">sensor_types</span> <span class="o">=</span> <span class="n">sensor_service</span><span class="o">.</span><span class="n">list_sensor_types</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;393B04&quot;</span><span class="p">})</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">sensor_type</span> <span class="o">=</span> <span class="n">sensor_service</span><span class="o">.</span><span class="n">get_sensor_type</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;393B04&quot;</span><span class="p">})</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">sensor</span> <span class="o">=</span> <span class="n">sensor_service</span><span class="o">.</span><span class="n">get_sensor</span><span class="p">({</span><span class="s2">&quot;serial_number&quot;</span><span class="p">:</span> <span class="s2">&quot;SG-01&quot;</span><span class="p">,</span> <span class="s2">&quot;sensor_type_id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
 </span></code></pre></div>
-<p><strong>Signal-calibration map</strong> — maps each signal to calibration metadata:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">signal_calibration_map</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="s2">&quot;WTG01&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="s2">&quot;NRT_WTG_TP_ACC_AX&quot;</span><span class="p">:</span> <span class="p">{</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;2023-01-15&quot;</span><span class="p">,</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;SN001_calibration.pdf&quot;</span><span class="p">,</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="p">}</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="p">}</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
+<p>The returned objects are validated SHM models such as <code>SensorTypeRecord</code> and
+<code>SensorRecord</code>.</p>
+<h2 id="retrieve-one-calibration-row">Retrieve one calibration row<a class="headerlink" href="#retrieve-one-calibration-row" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">calibration</span> <span class="o">=</span> <span class="n">sensor_service</span><span class="o">.</span><span class="n">get_sensor_calibration</span><span class="p">({</span><span class="s2">&quot;sensor_id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">if</span> <span class="n">calibration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">calibration</span><span class="o">.</span><span class="n">calibration_date</span><span class="p">)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">calibration</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="3-upload">3. Upload<a class="headerlink" href="#3-upload" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">results</span> <span class="o">=</span> <span class="n">uploader</span><span class="o">.</span><span class="n">upload_sensor_calibrations</span><span class="p">(</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">signal_sensor_map_data</span><span class="o">=</span><span class="n">signal_sensor_map</span><span class="p">,</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">signal_calibration_map_data</span><span class="o">=</span><span class="n">signal_calibration_map</span><span class="p">,</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">path_to_datasheets</span><span class="o">=</span><span class="s2">&quot;data/sensors/datasheets/&quot;</span><span class="p">,</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span>
-</span></code></pre></div>
-<p>The uploader resolves sensor IDs from the signal-sensor map (including nested
-sensor type lookups), then creates a calibration for each signal with the
-matching PDF attached when found on disk.</p>
+<h2 id="when-to-use-each-layer">When to use each layer<a class="headerlink" href="#when-to-use-each-layer" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use <code>ShmAPI</code> when you want raw <code>DataFrame</code> access or you are debugging the
+  backend response.</li>
+<li>Use <code>SensorService</code> when you want validated models in application code.</li>
+<li>Use <code>ApiShmRepository</code> and <code>ShmEntityService</code> when you need a generic typed
+  path across multiple SHM entities.</li>
+</ul>
+<h2 id="related-pages">Related pages<a class="headerlink" href="#related-pages" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../get-signal-data/">Get Signal Data</a></li>
+<li><a href="../../reference/api/io/">Reference: SHM API Transport</a></li>
+<li><a href="../../reference/api/services/">Reference: Services</a></li>
+</ul>
 
 
 
@@ -2080,7 +2111,7 @@ matching PDF attached when found on disk.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../upload-sensors/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Upload Sensors">
+          <a href="../authenticate/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Authenticate">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -2090,20 +2121,20 @@ matching PDF attached when found on disk.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Upload Sensors
+                Authenticate
               </div>
             </div>
           </a>
         
         
           
-          <a href="../process-signal-configs/" class="md-footer__link md-footer__link--next" aria-label="Next: Process Signal Configs">
+          <a href="../get-signal-data/" class="md-footer__link md-footer__link--next" aria-label="Next: Get Signal Data">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Process Signal Configs
+                Get Signal Data
               </div>
             </div>
             <div class="md-footer__button md-icon">
