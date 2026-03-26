@@ -57,6 +57,6 @@ print(service.get_sensor_type(name="393B04"))
 
 ## Notebook Workflows
 
-The repository also includes executable tutorial notebooks in `notebooks/` for
+The repository also includes executable tutorial notebooks in `scripts/` for
 sensor and signal upload workflows. They use the bundled Norther example data
 and are suitable both as interactive guides and as executable regression gates.

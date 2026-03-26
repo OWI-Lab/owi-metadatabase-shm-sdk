@@ -6,7 +6,7 @@ on:
     types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review]
 
 concurrency:
-  group: release-preview-${{ '{{ github.event.pull_request.number }} '}}
+  group: release-preview-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
@@ -38,7 +38,7 @@ jobs:
         id: release_plan
         run: |
           python .github/scripts/release_version.py plan \
-            --labels-json '${{ '{{ toJson(github.event.pull_request.labels.*.name) }} '}}' \
+            --labels-json '${{ toJson(github.event.pull_request.labels.*.name) }}' \
             --github-output "$GITHUB_OUTPUT"
 
       - name: Summarize release preview
@@ -46,9 +46,9 @@ jobs:
           {
             echo "## Release Preview"
             echo
-            echo "- Current version: ${{ '{{ steps.release_plan.outputs.current_version }} '}}"
-            echo "- Release bump: ${{ '{{ steps.release_plan.outputs.bump_type }} '}}"
-            echo "- Next version on merge: v${{ '{{ steps.release_plan.outputs.next_version }} '}}"
+            echo "- Current version: ${{ steps.release_plan.outputs.current_version }}"
+            echo "- Release bump: ${{ steps.release_plan.outputs.bump_type }}"
+            echo "- Next version on merge: v${{ steps.release_plan.outputs.next_version }}"
             echo
             echo "Supported labels: release:major, release:minor, release:patch"
             echo "Default behavior without a release label: patch"
