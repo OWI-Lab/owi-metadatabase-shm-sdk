@@ -14,6 +14,7 @@ nav = [
   { "Tutorials" = [
     { "Overview" = "tutorials/index.md" },
     { "Your First Query" = "tutorials/first-query.md" },
+    { "Retrieve SHM Data" = "tutorials/retrieve-data.md" },
     { "Upload Sensors" = "tutorials/upload-sensors.md" },
     { "Upload Signals" = "tutorials/upload-signals.md" },
   ]},
@@ -21,6 +22,8 @@ nav = [
     { "Overview" = "how-to/index.md" },
     { "Install the SDK" = "how-to/install.md" },
     { "Authenticate" = "how-to/authenticate.md" },
+    { "Get Sensor Data" = "how-to/get-sensor-data.md" },
+    { "Get Signal Data" = "how-to/get-signal-data.md" },
     { "Upload Sensor Types" = "how-to/upload-sensor-types.md" },
     { "Upload Sensors" = "how-to/upload-sensors.md" },
     { "Upload Sensor Calibrations" = "how-to/upload-sensor-calibrations.md" },

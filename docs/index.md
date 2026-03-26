@@ -45,15 +45,24 @@
 ## Quick Example
 
 ```python
-from owi.metadatabase.shm import ApiShmRepository, SensorService, ShmAPI
+from owi.metadatabase.shm import ApiShmRepository, SensorService, ShmAPI, ShmEntityService
 
 api = ShmAPI(token="your-api-token")
 repository = ApiShmRepository(api)
-service = SensorService(repository=repository)
+entity_service = ShmEntityService(repository=repository)
+service = SensorService(entity_service=entity_service)
 
 print(api.ping())
-print(service.get_sensor_type(name="393B04"))
+print(service.get_sensor_type({"name": "393B04"}))
 ```
+
+## Read Data Workflows
+
+If you are using the SHM SDK for queries rather than uploads, start here:
+
+- [Tutorial: Retrieve SHM Data](tutorials/retrieve-data.md)
+- [How-to: Get Sensor Data](how-to/get-sensor-data.md)
+- [How-to: Get Signal Data](how-to/get-signal-data.md)
 
 ## Notebook Workflows
 

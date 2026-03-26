@@ -6,6 +6,7 @@ workflows so you gain hands-on experience with the SDK.
 | Tutorial | What you will learn |
 |----------|---------------------|
 | [Your First Query](first-query.md) | Connect to the API and run a health check. |
+| [Retrieve SHM Data](retrieve-data.md) | Query sensor and signal data through both raw and typed APIs. |
 | [Upload Sensors](upload-sensors.md) | Upload sensor types, sensors, and calibrations. |
 | [Upload Signals](upload-signals.md) | Process signal configs and upload to the backend. |
 
