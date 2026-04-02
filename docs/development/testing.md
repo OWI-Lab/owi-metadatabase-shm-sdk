@@ -3,7 +3,7 @@
 ## Running the Test Suite
 
 ```bash
-uv run inv test.all
+uv run inv test
 ```
 
 This command runs:

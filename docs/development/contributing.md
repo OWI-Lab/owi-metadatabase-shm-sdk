@@ -14,13 +14,13 @@ The project uses **ruff** for formatting and linting (120-char lines) and
 **ty** for type checking:
 
 ```bash
-uv run inv qa.all
+uv run inv qa
 ```
 
 ## Running Tests
 
 ```bash
-uv run inv test.all
+uv run inv test
 ```
 
 This runs pytest with coverage and doctests enabled.
@@ -37,6 +37,6 @@ uv run pre-commit install
 
 1. Create a feature branch from `main`.
 2. Make your changes with tests.
-3. Ensure `uv run inv qa.all` and `uv run inv test.all` pass.
+3. Ensure `uv run inv qa` and `uv run inv test` pass.
 4. Execute both root notebooks with `uv run jupyter nbconvert --to notebook --execute ...`.
 5. Open a PR against `main`.

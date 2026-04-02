@@ -47,7 +47,7 @@ The plan assumes phased delivery, because the API and upload refactor are the ri
 1. Run `uv sync --all-packages --all-extras --all-groups` before any tests or notebook execution.
 2. Use focused checks during implementation: transport first, then models/serializers/services, then upload workflows.
 3. Run `uv run invoke qa` after each major phase.
-4. Run `uv run invoke test.all` before deleting either the legacy package or the archive directory.
+4. Run `uv run invoke test` before deleting either the legacy package or the archive directory.
 5. Run `uv run invoke docs.build` after the docs/nav rewrite.
 6. Execute both new notebooks with `uv run jupyter nbconvert --to notebook --execute ...` as the final gate.
 

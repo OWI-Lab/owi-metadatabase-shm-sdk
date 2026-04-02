@@ -150,7 +150,7 @@ Full documentation is available at
 ```bash
 uv sync --all-packages --all-extras --all-groups
 uv run invoke qa
-uv run invoke test.all
+uv run invoke test
 uv run invoke docs.build
 cd scripts
 uv run jupyter nbconvert --to notebook --execute 1.0.upload-sensors.ipynb
