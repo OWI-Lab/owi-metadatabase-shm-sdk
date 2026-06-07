@@ -85,7 +85,7 @@ jobs:
             .bumpversion.cfg
             GitVersion.yml
             pyproject.toml
-            src/owi/metadatabase/{{ project_slug }} /__init__.py
+            src/owi/metadatabase/shm/__init__.py
             tests/test_imports.py
             uv.lock
 

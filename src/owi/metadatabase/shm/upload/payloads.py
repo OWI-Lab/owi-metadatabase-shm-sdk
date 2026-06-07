@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, time
@@ -32,6 +31,23 @@ _GENERAL_SIGNAL_FIELDS = frozenset(
         "Ro",
     }
 )
+_STATUS_ALIASES = {
+    "ok": "ok",
+    "fine": "ok",
+    "notok": "notok",
+    "not_ok": "notok",
+    "not ok": "notok",
+    "not-ok": "notok",
+    "broken": "notok",
+    "issue": "notok",
+    "maintenance": "warning",
+    "warning": "warning",
+    "deactive": "deactive",
+    "deactivated": "deactive",
+    "decommissioned": "deactive",
+    "decomissioned": "deactive",
+    "replaced": "deactive",
+}
 
 
 def _isoformat_timestamp(timestamp: TimestampValue) -> str:
@@ -48,8 +64,18 @@ def _normalize_visibility_groups(permission_group_ids: Sequence[int] | None) -> 
     return list(permission_group_ids)
 
 
-def _serialize_json_data(data: Mapping[str, JsonValue]) -> str:
-    return json.dumps(dict(data))
+def _normalize_status(status: str) -> str:
+    if not isinstance(status, str):
+        raise ValueError(f"Unsupported SHM status {status!r}. Expected a string.")
+    normalized = _STATUS_ALIASES.get(status.strip().lower())
+    if normalized is None:
+        expected = ", ".join(sorted(_STATUS_ALIASES))
+        raise ValueError(f"Unsupported SHM status {status!r}. Expected one of: {expected}.")
+    return normalized
+
+
+def _serialize_json_data(data: Mapping[str, JsonValue]) -> dict[str, JsonValue]:
+    return dict(data)
 
 
 def _legacy_signal_misc_data(signal_data: Mapping[str, JsonValue]) -> dict[str, JsonValue]:
@@ -124,7 +150,7 @@ class SignalHistoryPayload:
             "signal_id": self.signal_id,
             "activity_start_timestamp": _isoformat_timestamp(self.activity_start_timestamp),
             "is_latest_status": self.is_latest_status,
-            "status": self.status,
+            "status": _normalize_status(self.status),
             "sensor_serial_number": self.sensor_serial_number,
             "status_approval": self.status_approval,
         }
@@ -284,16 +310,20 @@ class DerivedSignalHistoryPayload:
     activity_start_timestamp: TimestampValue
     is_latest_status: bool
     status: str
+    parent_signals: Sequence[int] | None = None
     status_approval: str = "yes"
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "activity_start_timestamp": _isoformat_timestamp(self.activity_start_timestamp),
             "is_latest_status": self.is_latest_status,
-            "status": self.status,
+            "status": _normalize_status(self.status),
             "derived_signal_id": self.derived_signal_id,
             "status_approval": self.status_approval,
         }
+        if self.parent_signals is not None:
+            payload["parent_signals"] = list(self.parent_signals)
+        return payload
 
 
 @dataclass(frozen=True)
@@ -640,6 +670,7 @@ def build_derived_signal_main_payload(
 def build_derived_signal_status_payload(
     derived_signal_id: int,
     signal_data: Mapping[str, Any],
+    parent_signal_ids: Sequence[int] | None = None,
 ) -> dict[str, Any]:
     """Build the derived-signal status payload used before parent patching."""
     calibrations = signal_data.get("calibration")
@@ -655,6 +686,7 @@ def build_derived_signal_status_payload(
         activity_start_timestamp=first["time"],
         is_latest_status=True,
         status="ok",
+        parent_signals=parent_signal_ids,
     ).to_payload()
 
 

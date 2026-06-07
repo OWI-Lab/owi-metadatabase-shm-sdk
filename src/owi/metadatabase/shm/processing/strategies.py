@@ -67,31 +67,53 @@ def _strain_calibration_fields(payload: Mapping[str, Any], level: str) -> Mappin
 def _default_signal_postprocessor(
     signals: MutableMapping[str, ProcessedSignalRecord],
 ) -> None:
-    """Apply default wind-farm status and offset normalization rules."""
-    for signal_name, record in signals.items():
-        if signal_name.startswith("NRT"):
-            if record.status_rows:
-                indices_to_drop: list[int] = []
-                for index, row in enumerate(record.status_rows):
-                    if "name" in row and "status" not in row:
-                        previous_index = index - 1
-                        next_index = index + 1
-                        if previous_index >= 0 and "status" in record.status_rows[previous_index]:
-                            row["status"] = record.status_rows[previous_index]["status"]
-                            indices_to_drop.append(previous_index)
-                        elif next_index < len(record.status_rows) and "status" in record.status_rows[next_index]:
-                            row["status"] = record.status_rows[next_index]["status"]
-                            indices_to_drop.append(next_index)
-                record.status_rows = [
-                    row for index, row in enumerate(record.status_rows) if index not in indices_to_drop
-                ]
+    """Apply the historical default Norther postprocessing rules."""
+    _status_alias_postprocessor(signals)
+    _norther_temperature_compensation_postprocessor(signals)
 
-            temperature_comp = record.scalar_fields.get("temperature_compensation")
-            if isinstance(temperature_comp, Mapping) and record.offset_rows:
-                record.offset_rows[0] = {**record.offset_rows[0], **dict(temperature_comp)}
-                tc_sensor = temperature_comp.get("TCSensor")
-                for row in record.offset_rows[1:]:
-                    row["TCSensor"] = tc_sensor
+
+def _status_alias_postprocessor(
+    signals: MutableMapping[str, ProcessedSignalRecord],
+) -> None:
+    """Merge legacy alias-only status rows with adjacent status rows."""
+    for record in signals.values():
+        if not record.status_rows:
+            continue
+
+        indices_to_drop: set[int] = set()
+        for index, row in enumerate(record.status_rows):
+            if "name" not in row or "status" in row:
+                continue
+
+            previous_index = index - 1
+            next_index = index + 1
+            if previous_index >= 0 and "status" in record.status_rows[previous_index]:
+                row["status"] = record.status_rows[previous_index]["status"]
+                indices_to_drop.add(previous_index)
+            elif next_index < len(record.status_rows) and "status" in record.status_rows[next_index]:
+                row["status"] = record.status_rows[next_index]["status"]
+                indices_to_drop.add(next_index)
+
+        if indices_to_drop:
+            record.status_rows = [
+                row for index, row in enumerate(record.status_rows) if index not in indices_to_drop
+            ]
+
+
+def _norther_temperature_compensation_postprocessor(
+    signals: MutableMapping[str, ProcessedSignalRecord],
+) -> None:
+    """Apply Norther temperature-compensation values to offset rows."""
+    for signal_name, record in signals.items():
+        if not signal_name.startswith("NRT"):
+            continue
+
+        temperature_comp = record.scalar_fields.get("temperature_compensation")
+        if isinstance(temperature_comp, Mapping) and record.offset_rows:
+            record.offset_rows[0] = {**record.offset_rows[0], **dict(temperature_comp)}
+            tc_sensor = temperature_comp.get("TCSensor")
+            for row in record.offset_rows[1:]:
+                row["TCSensor"] = tc_sensor
 
 
 @dataclass(frozen=True)
@@ -247,6 +269,8 @@ _DERIVED_DATA_BUILDERS: Final[dict[str, DerivedDataBuilder]] = {}
 
 _SIGNAL_POSTPROCESSORS: Final[dict[str, SignalPostprocessor]] = {
     "default_signal_postprocessor": _default_signal_postprocessor,
+    "norther_temperature_compensation_postprocessor": _norther_temperature_compensation_postprocessor,
+    "status_alias_postprocessor": _status_alias_postprocessor,
 }
 
 

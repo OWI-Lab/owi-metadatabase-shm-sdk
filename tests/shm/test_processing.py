@@ -93,6 +93,51 @@ def test_configured_processor_matches_archive_shape_for_sample_config(tmp_path) 
     }
 
 
+def test_status_alias_postprocessor_supports_custom_farms_without_norther_offset_rules(tmp_path) -> None:
+    spec_path = tmp_path / "belwind.yaml"
+    spec_path.write_text(
+        textwrap.dedent(
+            """
+            farm_name: Belwind
+            signal_key_parser:
+              kind: delimited
+              signal_prefixes:
+                - BB_
+                - X/
+            derived_signal_strategies: {}
+            postprocessors:
+              - status_alias_postprocessor
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    processor = ConfiguredSignalConfigProcessor(
+        path_configs=".",
+        processor_spec=load_signal_processor_spec(spec_path),
+    )
+
+    result = processor.process_events(
+        [
+            {
+                "BB_X01_TP_STRAIN_LAT020_DEG001_nr1/status": "ok",
+                "X/name": "BB_X01_TP_STRAIN_LAT020_DEG001_nr1",
+                "BB_X01_TP_STRAIN_LAT020_DEG001_nr1/temperature_compensation": {"TCSensor": "TC-1"},
+                "BB_X01_TP_STRAIN_LAT020_DEG001_nr1/offset": 1.2,
+            }
+        ]
+    )
+
+    signals, _ = result.to_legacy_data()
+
+    assert signals["BB_X01_TP_STRAIN_LAT020_DEG001_nr1"]["status"] == [
+        {"time": "01/01/1972 00:00", "name": "X", "status": "ok"}
+    ]
+    assert signals["BB_X01_TP_STRAIN_LAT020_DEG001_nr1"]["offset"] == [
+        {"time": "01/01/1972 00:00", "offset": 1.2}
+    ]
+
+
 def test_json_stem_config_discovery_warns_for_missing_turbines(tmp_path) -> None:
     (tmp_path / "T01.json").write_text("[]", encoding="utf-8")
     discovery = JsonStemConfigDiscovery()

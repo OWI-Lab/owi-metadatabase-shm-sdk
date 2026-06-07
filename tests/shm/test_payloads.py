@@ -1,4 +1,3 @@
-import json
 from datetime import date
 from pathlib import Path
 
@@ -6,6 +5,7 @@ import pytest
 
 from owi.metadatabase.shm.signal_ids import parse_legacy_signal_id
 from owi.metadatabase.shm.upload.payloads import (
+    DerivedSignalHistoryPayload,
     SensorCalibrationPayload,
     build_derived_signal_calibration_payloads,
     build_derived_signal_main_payload,
@@ -61,12 +61,10 @@ def test_build_signal_main_payload_serializes_archive_misc_fields() -> None:
         "visibility": "usergroup",
         "visibility_groups": [7, 11],
         "sub_assembly": 40,
-        "data_additional": json.dumps(
-            {
-                "custom_factor": 1.5,
-                "calculation": {"window": "10m"},
-            }
-        ),
+        "data_additional": {
+            "custom_factor": 1.5,
+            "calculation": {"window": "10m"},
+        },
     }
 
 
@@ -95,12 +93,47 @@ def test_build_signal_status_payloads_only_mark_latest_entry() -> None:
             "signal_id": 77,
             "activity_start_timestamp": "2026-03-24T09:30:00",
             "is_latest_status": True,
-            "status": "maintenance",
+            "status": "warning",
             "sensor_serial_number": 88,
             "status_approval": "yes",
             "legacy_signal_id": "LEG-002",
         },
     ]
+
+
+def test_build_signal_status_payloads_normalizes_backend_status_aliases() -> None:
+    payloads = build_signal_status_payloads(
+        77,
+        {
+            "status": [
+                {"time": "24/03/2026 08:00:00", "status": "fine"},
+                {"time": "24/03/2026 09:00:00", "status": "broken"},
+                {"time": "24/03/2026 10:00:00", "status": "replaced"},
+            ]
+        },
+    )
+
+    assert [payload["status"] for payload in payloads] == ["ok", "notok", "deactive"]
+
+
+def test_build_signal_status_payloads_raise_for_unknown_status() -> None:
+    with pytest.raises(ValueError, match="Unsupported SHM status 'paused'"):
+        build_signal_status_payloads(
+            77,
+            {"status": [{"time": "24/03/2026 08:00:00", "status": "paused"}]},
+        )
+
+
+def test_derived_signal_history_payload_normalizes_status_aliases() -> None:
+    payload = DerivedSignalHistoryPayload(
+        derived_signal_id=501,
+        activity_start_timestamp="24/03/2026 08:00:00",
+        is_latest_status=True,
+        status="decomissioned",
+        parent_signals=[77],
+    ).to_payload()
+
+    assert payload["status"] == "deactive"
 
 
 def test_build_signal_calibration_payloads_preserve_archive_json_shapes() -> None:
@@ -128,22 +161,20 @@ def test_build_signal_calibration_payloads_preserve_archive_json_shapes() -> Non
         {
             "signal_id": 77,
             "calibration_date": "2026-03-24T08:15:00",
-            "data": json.dumps(
-                {
-                    "offset": 1.25,
-                    "Coefficients": [1.0, 2.0],
-                    "t_ref": 21.5,
-                    "gauge_correction": 0.2,
-                    "lead_correction": {"t_ref": 25.0, "coef": 0.5},
-                }
-            ),
+            "data": {
+                "offset": 1.25,
+                "Coefficients": [1.0, 2.0],
+                "t_ref": 21.5,
+                "gauge_correction": 0.2,
+                "lead_correction": {"t_ref": 25.0, "coef": 0.5},
+            },
             "tempcomp_signal_id": 101,
             "status_approval": "yes",
         },
         {
             "signal_id": 77,
             "calibration_date": "2026-03-24T08:30:00",
-            "data": json.dumps({"cwl": 13.4}),
+            "data": {"cwl": 13.4},
             "tempcomp_signal_id": None,
             "status_approval": "yes",
         },
@@ -171,6 +202,7 @@ def test_build_derived_signal_payloads_keep_archive_contract() -> None:
 
     main_payload = build_derived_signal_main_payload(signal, signal_data, _upload_context())
     status_payload = build_derived_signal_status_payload(501, signal_data)
+    status_payload_with_parents = build_derived_signal_status_payload(501, signal_data, parent_signal_ids=(77, 78))
     calibration_payloads = build_derived_signal_calibration_payloads(501, signal_data)
     parent_patch = build_derived_signal_parent_patch((77, 78))
 
@@ -187,7 +219,7 @@ def test_build_derived_signal_payloads_keep_archive_contract() -> None:
         "visibility": "usergroup",
         "visibility_groups": [7, 11],
         "sub_assembly": 40,
-        "data_additional": json.dumps({"window": "10m", "formula": "yaw_a - yaw_b"}),
+        "data_additional": {"window": "10m", "formula": "yaw_a - yaw_b"},
     }
     assert status_payload == {
         "activity_start_timestamp": "2026-03-24T07:45:00",
@@ -196,16 +228,15 @@ def test_build_derived_signal_payloads_keep_archive_contract() -> None:
         "derived_signal_id": 501,
         "status_approval": "yes",
     }
+    assert status_payload_with_parents["parent_signals"] == [77, 78]
     assert calibration_payloads == [
         {
             "calibration_date": "2026-03-24T07:45:00",
-            "data": json.dumps(
-                {
-                    "yaw_parameter": "offset",
-                    "yaw_offset": 4.5,
-                    "measurement_location": "nacelle",
-                }
-            ),
+            "data": {
+                "yaw_parameter": "offset",
+                "yaw_offset": 4.5,
+                "measurement_location": "nacelle",
+            },
             "derived_signal_id": 501,
             "status_approval": "yes",
         }

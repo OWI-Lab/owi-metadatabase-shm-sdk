@@ -13,6 +13,7 @@ from owi.metadatabase.shm import (
     ConfiguredSignalConfigProcessor,
     ParentSignalLookupError,
     ShmSignalUploader,
+    ShmUploadError,
     SignalConfigUploadSource,
     SignalProcessorSpec,
     UploadResultError,
@@ -127,11 +128,13 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
             {
                 "signal_id": 101,
                 "calibration_date": "2026-03-24T08:15:00",
-                "data": (
-                    '{"offset": 1.25, "Coefficients": [1.0, 2.0], '
-                    '"t_ref": 21.5, "gauge_correction": 0.2, '
-                    '"lead_correction": {"t_ref": 25.0, "coef": 0.5}}'
-                ),
+                "data": {
+                    "offset": 1.25,
+                    "Coefficients": [1.0, 2.0],
+                    "t_ref": 21.5,
+                    "gauge_correction": 0.2,
+                    "lead_correction": {"t_ref": 25.0, "coef": 0.5},
+                },
                 "tempcomp_signal_id": 909,
                 "status_approval": "yes",
             }
@@ -140,7 +143,7 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
             {
                 "signal_id": 101,
                 "calibration_date": "2026-03-24T08:30:00",
-                "data": '{"cwl": 13.4}',
+                "data": {"cwl": 13.4},
                 "tempcomp_signal_id": None,
                 "status_approval": "yes",
             }
@@ -155,13 +158,14 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
             "status": "ok",
             "derived_signal_id": 501,
             "status_approval": "yes",
+            "parent_signals": [101],
         }
     )
     shm_api.patch_derived_signal_history.assert_called_once_with(601, {"parent_signals": [101]})
     shm_api.create_derived_signal_calibration.assert_called_once_with(
         {
             "calibration_date": "2026-03-24T07:45:00",
-            "data": '{"yaw_parameter": "offset", "yaw_offset": 4.5}',
+            "data": {"yaw_parameter": "offset", "yaw_offset": 4.5},
             "derived_signal_id": 501,
             "status_approval": "yes",
         }
@@ -169,6 +173,29 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
     assert result.asset_key == "Project A/Asset-01"
     assert result.signal_ids_by_name == {"NRT_WTG_TP_STRAIN_LAT02_DEG270_Y": 101}
     assert result.derived_signal_ids_by_name == {"NRT_WTG_TP_YAW_LAT01_DEG000_Y": 501}
+
+
+def test_upload_asset_passes_explicit_model_definition_to_lookup() -> None:
+    shm_api = Mock()
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    uploader.upload_asset(
+        AssetSignalUploadRequest(
+            projectsite="Project A",
+            assetlocation="Asset-01",
+            signals={},
+            model_definition="MD-02",
+        )
+    )
+
+    lookup_service.get_signal_upload_context.assert_called_once_with(
+        projectsite="Project A",
+        assetlocation="Asset-01",
+        permission_group_ids=None,
+        model_definition="MD-02",
+    )
 
 
 def test_upload_asset_falls_back_to_signal_lookup_for_parent_ids() -> None:
@@ -250,6 +277,86 @@ def test_upload_asset_skips_invalid_or_incomplete_archive_records() -> None:
     assert result.results_secondary == []
     assert result.results_derived_main == []
     assert result.results_derived_secondary == []
+
+
+def test_upload_asset_prefers_explicit_temperature_compensation_ids_over_refs() -> None:
+    shm_api = Mock()
+    shm_api.create_signal.return_value = {"id": 101, "exists": True}
+    shm_api.create_signal_calibration.return_value = {"id": 301, "exists": True}
+
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    uploader.upload_asset(
+        AssetSignalUploadRequest(
+            projectsite="Project A",
+            assetlocation="Asset-01",
+            signals={
+                "NRT_WTG_TP_STRAIN_LAT02_DEG270_Y": {
+                    "heading": "N",
+                    "level": 2,
+                    "orientation": "Y",
+                    "offset": [
+                        {
+                            "time": "24/03/2026 08:15:00",
+                            "offset": 1.25,
+                            "TCSensor": "TC-001",
+                        }
+                    ],
+                }
+            },
+            temperature_compensation_signal_ids={"TC-001": 909},
+            temperature_compensation_signal_refs={"TC-001": "MISSING_TC_SIGNAL"},
+        )
+    )
+
+    shm_api.get_signal.assert_not_called()
+    shm_api.create_signal_calibration.assert_called_once_with(
+        {
+            "signal_id": 101,
+            "calibration_date": "2026-03-24T08:15:00",
+            "data": {"offset": 1.25},
+            "tempcomp_signal_id": 909,
+            "status_approval": "yes",
+        }
+    )
+
+
+def test_upload_asset_raises_when_temperature_compensation_ref_lookup_fails() -> None:
+    shm_api = Mock()
+    shm_api.create_signal.return_value = {"id": 101, "exists": True}
+    shm_api.get_signal.return_value = {"id": None, "exists": False, "data": pd.DataFrame()}
+
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    with pytest.raises(
+        ShmUploadError,
+        match="Could not resolve temperature-compensation signal 'MISSING_TC_SIGNAL' for asset 'Project A/Asset-01'",
+    ):
+        uploader.upload_asset(
+            AssetSignalUploadRequest(
+                projectsite="Project A",
+                assetlocation="Asset-01",
+                signals={
+                    "NRT_WTG_TP_STRAIN_LAT02_DEG270_Y": {
+                        "heading": "N",
+                        "level": 2,
+                        "orientation": "Y",
+                        "offset": [
+                            {
+                                "time": "24/03/2026 08:15:00",
+                                "offset": 1.25,
+                                "TCSensor": "TC-001",
+                            }
+                        ],
+                    }
+                },
+                temperature_compensation_signal_refs={"TC-001": "MISSING_TC_SIGNAL"},
+            )
+        )
 
 
 def test_upload_asset_raises_when_signal_create_result_has_no_id() -> None:
@@ -420,6 +527,29 @@ def test_upload_turbines_keeps_turbine_keys_and_uses_explicit_assetlocations() -
     assert results["T01"].signal_ids_by_name == {"NRT_WTG_TP_STRAIN_LAT02_DEG270_Y": 101}
 
 
+def test_upload_turbines_passes_late_temperature_compensation_refs_to_asset_request() -> None:
+    shm_api = Mock()
+    lookup_service = Mock()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+    mock_upload_asset = Mock(return_value=Mock(asset_key="Project A/WTG-01"))
+    object.__setattr__(uploader, "upload_asset", mock_upload_asset)
+
+    uploader.upload_turbines(
+        projectsite="Project A",
+        signals_by_turbine={"T01": {}},
+        assetlocations_by_turbine={"T01": "WTG-01"},
+        model_definition="MD-02",
+        temperature_compensation_signal_refs_by_turbine={"T01": {"TC-1": "TC_SIGNAL"}},
+    )
+
+    request = mock_upload_asset.call_args.args[0]
+    assert isinstance(request, AssetSignalUploadRequest)
+    assert request.projectsite == "Project A"
+    assert request.assetlocation == "WTG-01"
+    assert request.model_definition == "MD-02"
+    assert request.temperature_compensation_signal_refs == {"TC-1": "TC_SIGNAL"}
+
+
 def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None:
     shm_api = Mock()
     lookup_service = Mock()
@@ -445,8 +575,10 @@ def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None
         processor=cast(SignalConfigUploadSource, processor),
         assetlocations_by_turbine={"T01": "WTG-01"},
         permission_group_ids=[7, 11],
+        model_definition="MD-02",
         sensor_serial_numbers_by_turbine={"T01": {"SIG": 88}},
         temperature_compensation_signal_ids_by_turbine={"T01": {"TC-1": 99}},
+        temperature_compensation_signal_refs_by_turbine={"T01": {"TC-2": "TC_SIGNAL"}},
     )
 
     processor.signals_process_data.assert_called_once_with()
@@ -456,8 +588,10 @@ def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None
         derived_signals_by_turbine=processor.signals_derived_data,
         assetlocations_by_turbine={"T01": "WTG-01"},
         permission_group_ids=[7, 11],
+        model_definition="MD-02",
         sensor_serial_numbers_by_turbine={"T01": {"SIG": 88}},
         temperature_compensation_signal_ids_by_turbine={"T01": {"TC-1": 99}},
+        temperature_compensation_signal_refs_by_turbine={"T01": {"TC-2": "TC_SIGNAL"}},
     )
     assert tuple(result) == ("T01",)
 
@@ -526,6 +660,7 @@ def test_upload_from_processor_files_resolves_archive_style_file_maps(
         path_sensor_tc_map=sensor_tc_map_path,
         assetlocations_by_turbine={"T01": "WTG-01"},
         permission_group_ids=[7],
+        model_definition="MD-02",
     )
 
     processor.signals_process_data.assert_called_once_with()
@@ -540,6 +675,7 @@ def test_upload_from_processor_files_resolves_archive_style_file_maps(
         projectsite="Project A",
         assetlocation="WTG-01",
         permission_group_ids=[7],
+        model_definition="MD-02",
     )
     shm_api.create_signal_history.assert_called_once_with(
         {
@@ -555,13 +691,78 @@ def test_upload_from_processor_files_resolves_archive_style_file_maps(
         {
             "signal_id": 101,
             "calibration_date": "2026-03-24T08:15:00",
-            "data": '{"offset": 1.25}',
+            "data": {"offset": 1.25},
             "tempcomp_signal_id": 909,
             "status_approval": "yes",
         }
     )
     assert tuple(results) == ("T01",)
     assert results["T01"].asset_key == "Project A/WTG-01"
+
+
+def test_upload_from_processor_files_resolves_temperature_compensation_from_created_signals(tmp_path) -> None:
+    signal_name = "WTG_A01_TP_STRAIN_LAT02_DEG270_Y"
+    tc_signal_name = "WTG_A01_TP_TC_LAT015_DEG050_nr1"
+    sensor_tc_map_path = tmp_path / "sensor_tc_map.json"
+    sensor_tc_map_path.write_text(json.dumps({"T01": [tc_signal_name]}), encoding="utf-8")
+
+    shm_api = Mock()
+    shm_api.create_signal.side_effect = [
+        {"id": 101, "exists": True},
+        {"id": 909, "exists": True},
+    ]
+    shm_api.create_signal_calibration.return_value = {"id": 301, "exists": True}
+
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    processor = Mock()
+    processor.signals_data = {
+        "T01": {
+            signal_name: {
+                "heading": "N",
+                "level": 2,
+                "orientation": "Y",
+                "offset": [
+                    {
+                        "time": "24/03/2026 08:15:00",
+                        "offset": 1.25,
+                        "TCSensor": tc_signal_name,
+                    }
+                ],
+            },
+            tc_signal_name: {
+                "heading": "N",
+                "level": 2,
+            },
+        }
+    }
+    processor.signals_derived_data = {"T01": {}}
+
+    results = uploader.upload_from_processor_files(
+        projectsite="Project A",
+        processor=cast(SignalConfigUploadSource, processor),
+        path_sensor_tc_map=sensor_tc_map_path,
+        assetlocations_by_turbine={"T01": "WTG-01"},
+        permission_group_ids=[7],
+    )
+
+    shm_api.get_signal.assert_not_called()
+    assert shm_api.create_signal.call_count == 2
+    shm_api.create_signal_calibration.assert_called_once_with(
+        {
+            "signal_id": 101,
+            "calibration_date": "2026-03-24T08:15:00",
+            "data": {"offset": 1.25},
+            "tempcomp_signal_id": 909,
+            "status_approval": "yes",
+        }
+    )
+    assert results["T01"].signal_ids_by_name == {
+        signal_name: 101,
+        tc_signal_name: 909,
+    }
 
 
 def test_upload_from_processor_batches_real_config_files_through_public_src_surface(tmp_path) -> None:
@@ -651,7 +852,7 @@ def test_upload_from_processor_batches_real_config_files_through_public_src_surf
                 "signal_id": 102,
                 "activity_start_timestamp": "2026-03-24T09:00:00",
                 "is_latest_status": True,
-                "status": "maintenance",
+                "status": "warning",
                 "sensor_serial_number": None,
                 "status_approval": "yes",
             }
@@ -661,7 +862,7 @@ def test_upload_from_processor_batches_real_config_files_through_public_src_surf
         {
             "signal_id": 101,
             "calibration_date": "1972-01-01T00:00:00",
-            "data": '{"offset": 1.2}',
+            "data": {"offset": 1.2},
             "tempcomp_signal_id": 909,
             "status_approval": "yes",
         }
@@ -693,10 +894,14 @@ def test_request_factory_accepts_generic_processor_output() -> None:
         assetlocation="Asset-01",
         processing_result=processing_result,
         permission_group_ids=[7],
+        model_definition="MD-02",
+        temperature_compensation_signal_refs={"TC-1": "TC_SIGNAL"},
     )
 
     assert request.result_key == "Project A/Asset-01"
     assert request.permission_group_ids == [7]
+    assert request.model_definition == "MD-02"
+    assert request.temperature_compensation_signal_refs == {"TC-1": "TC_SIGNAL"}
     assert request.signals["NRT_WTG_TP_STRAIN_LAT01_DEG000_Y"]["offset"][0] == {
         "time": "01/01/1972 00:00",
         "offset": 1.2,

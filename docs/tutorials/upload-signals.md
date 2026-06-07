@@ -41,6 +41,19 @@ print(f"Signals per turbine: {
 }")
 ```
 
+For other wind farms, create a farm-specific YAML processor spec and use that
+processor in the same upload calls:
+
+```python
+from owi.metadatabase.shm import ConfiguredSignalConfigProcessor
+
+processor = ConfiguredSignalConfigProcessor.from_yaml_spec(
+    path_configs="data/MyFarm/signal_configs/",
+    processor_spec_path="config/my_farm_processor.yaml",
+)
+processor.signals_process_data()
+```
+
 ## Step 2 — Set Up the Signal Uploader
 
 The signal uploader needs the SHM transport client and parent SDK clients
@@ -86,6 +99,18 @@ for turbine, result in results.items():
           f"{len(result.derived_signal_ids_by_name)} derived signals")
 ```
 
+If the parent geometry data contains multiple model definitions for the same
+asset location, pass the model-definition title explicitly:
+
+```python
+results = uploader.upload_from_processor(
+    projectsite="Norther",
+    processor=processor,
+    model_definition="Norther SHM model",
+    permission_group_ids=[1, 2],
+)
+```
+
 ## Step 4 — Upload with Sensor Maps (Optional)
 
 If you have sensor-serial-number mappings and temperature compensation maps:
@@ -96,9 +121,16 @@ results = uploader.upload_from_processor_files(
     processor=processor,
     path_signal_sensor_map="data/Norther/signal_sensor_map.json",
     path_sensor_tc_map="data/Norther/sensor_tc_map.json",
+    model_definition="Norther SHM model",
     permission_group_ids=[1, 2],
 )
 ```
+
+Temperature compensation map entries are signal identifiers. They are resolved
+after main signal records are created, so a map can reference a temperature
+compensation signal that is created in the same turbine upload. Advanced
+callers can also pass already resolved backend signal IDs through the
+lower-level `upload_from_processor()` and `upload_turbines()` methods.
 
 ## What You Learned
 

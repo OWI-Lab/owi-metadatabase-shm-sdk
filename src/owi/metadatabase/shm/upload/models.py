@@ -10,6 +10,8 @@ from ..processing import SignalProcessingResult
 
 SignalConfigMap = Mapping[str, Mapping[str, Any]]
 SignalConfigMapByTurbine = Mapping[str, SignalConfigMap]
+TemperatureCompensationSignalIDMap = Mapping[str, int]
+TemperatureCompensationSignalRefMap = Mapping[str, str]
 
 
 @dataclass(frozen=True)
@@ -35,6 +37,13 @@ class AssetSignalUploadRequest:
     temperature_compensation_signal_ids
         Optional map from legacy temperature-compensation sensor token to
         backend SHM signal id.
+    temperature_compensation_signal_refs
+        Optional map from legacy temperature-compensation sensor token to SHM
+        signal identifier. These references are resolved during upload after
+        main signal creation.
+    model_definition
+        Optional parent SDK model-definition title used when an asset has
+        subassemblies for multiple model definitions.
 
     Examples
     --------
@@ -53,7 +62,9 @@ class AssetSignalUploadRequest:
     derived_signals: SignalConfigMap | None = None
     permission_group_ids: Sequence[int] | None = None
     sensor_serial_numbers_by_signal: Mapping[str, int] | None = None
-    temperature_compensation_signal_ids: Mapping[str, int] | None = None
+    temperature_compensation_signal_ids: TemperatureCompensationSignalIDMap | None = None
+    temperature_compensation_signal_refs: TemperatureCompensationSignalRefMap | None = None
+    model_definition: str | None = None
 
     @property
     def result_key(self) -> str:
@@ -68,8 +79,10 @@ class AssetSignalUploadRequest:
         assetlocation: str,
         processing_result: SignalProcessingResult,
         permission_group_ids: Sequence[int] | None = None,
+        model_definition: str | None = None,
         sensor_serial_numbers_by_signal: Mapping[str, int] | None = None,
-        temperature_compensation_signal_ids: Mapping[str, int] | None = None,
+        temperature_compensation_signal_ids: TemperatureCompensationSignalIDMap | None = None,
+        temperature_compensation_signal_refs: TemperatureCompensationSignalRefMap | None = None,
     ) -> AssetSignalUploadRequest:
         """Build an upload request from a processed signal-config result.
 
@@ -83,12 +96,18 @@ class AssetSignalUploadRequest:
             Processed signal and derived-signal records emitted by a processor.
         permission_group_ids
             Visibility groups applied to created SHM objects.
+        model_definition
+            Optional parent SDK model-definition title used when an asset has
+            subassemblies for multiple model definitions.
         sensor_serial_numbers_by_signal
             Optional map from signal identifier to backend sensor serial
             number used for signal history rows.
         temperature_compensation_signal_ids
             Optional map from legacy temperature-compensation sensor token to
             backend SHM signal id.
+        temperature_compensation_signal_refs
+            Optional map from legacy temperature-compensation sensor token to
+            SHM signal identifier.
 
         Returns
         -------
@@ -116,8 +135,10 @@ class AssetSignalUploadRequest:
             signals=signals,
             derived_signals=derived_signals or None,
             permission_group_ids=permission_group_ids,
+            model_definition=model_definition,
             sensor_serial_numbers_by_signal=sensor_serial_numbers_by_signal,
             temperature_compensation_signal_ids=temperature_compensation_signal_ids,
+            temperature_compensation_signal_refs=temperature_compensation_signal_refs,
         )
 
 
