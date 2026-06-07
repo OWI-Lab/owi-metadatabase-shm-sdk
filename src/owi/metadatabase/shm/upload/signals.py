@@ -594,17 +594,18 @@ class ShmSignalUploader:
             if derived_signal_id is None:
                 continue
 
-            status_payload = build_derived_signal_status_payload(
-                derived_signal_id,
-                signal_data,
-            )
-            status_result = self.shm_api.create_derived_signal_history(status_payload)
-            results.append(status_result)
-
             parent_signal_ids = self._resolve_parent_signal_ids(
                 signal_data=signal_data,
                 signal_ids_by_name=signal_ids_by_name,
             )
+            status_payload = build_derived_signal_status_payload(
+                derived_signal_id,
+                signal_data,
+                parent_signal_ids=parent_signal_ids or None,
+            )
+            status_result = self.shm_api.create_derived_signal_history(status_payload)
+            results.append(status_result)
+
             if parent_signal_ids:
                 history_id = self._require_result_id(
                     status_result,

@@ -284,16 +284,20 @@ class DerivedSignalHistoryPayload:
     activity_start_timestamp: TimestampValue
     is_latest_status: bool
     status: str
+    parent_signals: Sequence[int] | None = None
     status_approval: str = "yes"
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "activity_start_timestamp": _isoformat_timestamp(self.activity_start_timestamp),
             "is_latest_status": self.is_latest_status,
             "status": self.status,
             "derived_signal_id": self.derived_signal_id,
             "status_approval": self.status_approval,
         }
+        if self.parent_signals is not None:
+            payload["parent_signals"] = list(self.parent_signals)
+        return payload
 
 
 @dataclass(frozen=True)
@@ -640,6 +644,7 @@ def build_derived_signal_main_payload(
 def build_derived_signal_status_payload(
     derived_signal_id: int,
     signal_data: Mapping[str, Any],
+    parent_signal_ids: Sequence[int] | None = None,
 ) -> dict[str, Any]:
     """Build the derived-signal status payload used before parent patching."""
     calibrations = signal_data.get("calibration")
@@ -655,6 +660,7 @@ def build_derived_signal_status_payload(
         activity_start_timestamp=first["time"],
         is_latest_status=True,
         status="ok",
+        parent_signals=parent_signal_ids,
     ).to_payload()
 
 

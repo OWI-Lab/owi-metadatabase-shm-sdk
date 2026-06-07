@@ -156,6 +156,7 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
             "status": "ok",
             "derived_signal_id": 501,
             "status_approval": "yes",
+            "parent_signals": [101],
         }
     )
     shm_api.patch_derived_signal_history.assert_called_once_with(601, {"parent_signals": [101]})

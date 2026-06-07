@@ -171,6 +171,7 @@ def test_build_derived_signal_payloads_keep_archive_contract() -> None:
 
     main_payload = build_derived_signal_main_payload(signal, signal_data, _upload_context())
     status_payload = build_derived_signal_status_payload(501, signal_data)
+    status_payload_with_parents = build_derived_signal_status_payload(501, signal_data, parent_signal_ids=(77, 78))
     calibration_payloads = build_derived_signal_calibration_payloads(501, signal_data)
     parent_patch = build_derived_signal_parent_patch((77, 78))
 
@@ -196,6 +197,7 @@ def test_build_derived_signal_payloads_keep_archive_contract() -> None:
         "derived_signal_id": 501,
         "status_approval": "yes",
     }
+    assert status_payload_with_parents["parent_signals"] == [77, 78]
     assert calibration_payloads == [
         {
             "calibration_date": "2026-03-24T07:45:00",
