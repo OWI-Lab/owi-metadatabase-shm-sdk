@@ -13,6 +13,7 @@ from owi.metadatabase.shm import (
     ConfiguredSignalConfigProcessor,
     ParentSignalLookupError,
     ShmSignalUploader,
+    ShmUploadError,
     SignalConfigUploadSource,
     SignalProcessorSpec,
     UploadResultError,
@@ -250,6 +251,86 @@ def test_upload_asset_skips_invalid_or_incomplete_archive_records() -> None:
     assert result.results_secondary == []
     assert result.results_derived_main == []
     assert result.results_derived_secondary == []
+
+
+def test_upload_asset_prefers_explicit_temperature_compensation_ids_over_refs() -> None:
+    shm_api = Mock()
+    shm_api.create_signal.return_value = {"id": 101, "exists": True}
+    shm_api.create_signal_calibration.return_value = {"id": 301, "exists": True}
+
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    uploader.upload_asset(
+        AssetSignalUploadRequest(
+            projectsite="Project A",
+            assetlocation="Asset-01",
+            signals={
+                "NRT_WTG_TP_STRAIN_LAT02_DEG270_Y": {
+                    "heading": "N",
+                    "level": 2,
+                    "orientation": "Y",
+                    "offset": [
+                        {
+                            "time": "24/03/2026 08:15:00",
+                            "offset": 1.25,
+                            "TCSensor": "TC-001",
+                        }
+                    ],
+                }
+            },
+            temperature_compensation_signal_ids={"TC-001": 909},
+            temperature_compensation_signal_refs={"TC-001": "MISSING_TC_SIGNAL"},
+        )
+    )
+
+    shm_api.get_signal.assert_not_called()
+    shm_api.create_signal_calibration.assert_called_once_with(
+        {
+            "signal_id": 101,
+            "calibration_date": "2026-03-24T08:15:00",
+            "data": '{"offset": 1.25}',
+            "tempcomp_signal_id": 909,
+            "status_approval": "yes",
+        }
+    )
+
+
+def test_upload_asset_raises_when_temperature_compensation_ref_lookup_fails() -> None:
+    shm_api = Mock()
+    shm_api.create_signal.return_value = {"id": 101, "exists": True}
+    shm_api.get_signal.return_value = {"id": None, "exists": False, "data": pd.DataFrame()}
+
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    with pytest.raises(
+        ShmUploadError,
+        match="Could not resolve temperature-compensation signal 'MISSING_TC_SIGNAL' for asset 'Project A/Asset-01'",
+    ):
+        uploader.upload_asset(
+            AssetSignalUploadRequest(
+                projectsite="Project A",
+                assetlocation="Asset-01",
+                signals={
+                    "NRT_WTG_TP_STRAIN_LAT02_DEG270_Y": {
+                        "heading": "N",
+                        "level": 2,
+                        "orientation": "Y",
+                        "offset": [
+                            {
+                                "time": "24/03/2026 08:15:00",
+                                "offset": 1.25,
+                                "TCSensor": "TC-001",
+                            }
+                        ],
+                    }
+                },
+                temperature_compensation_signal_refs={"TC-001": "MISSING_TC_SIGNAL"},
+            )
+        )
 
 
 def test_upload_asset_raises_when_signal_create_result_has_no_id() -> None:
