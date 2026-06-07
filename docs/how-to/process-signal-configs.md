@@ -27,7 +27,9 @@ print(list(processor.signals_derived_data.keys()))
 
 ## Using a Custom YAML Spec
 
-For farms with non-standard signal naming:
+For new wind farms or farms with non-standard signal naming, keep the parser
+rules in a farm-specific YAML spec instead of extending the packaged default
+Norther-oriented spec:
 
 ```python
 from owi.metadatabase.shm import ConfiguredSignalConfigProcessor
@@ -78,7 +80,7 @@ default_initial_time: "01/01/1972 00:00"
 signal_key_parser:
   kind: delimited
   signal_prefixes:
-    - "NRT"
+    - "WF_"
     - "X/"
     - "Y/"
     - "Z/"
@@ -87,8 +89,8 @@ signal_key_parser:
 derived_signal_strategies:
   "acceleration/yaw_transformation":
     kind: level_based
-    suffixes: ["_X", "_Y"]
-    parent_signals_builder: acceleration_parent_signals
+    suffixes: ["FA", "SS"]
+    parent_signals_builder: parent_signals_from_level
     calibration_fields_builder: yaw_calibration_fields
 
 config_discovery:
@@ -96,8 +98,13 @@ config_discovery:
   suffix: ".json"
 
 postprocessors:
-  - backfill_status
+  - status_alias_postprocessor
 ```
+
+Use `status_alias_postprocessor` when legacy alias rows such as `X/name`
+should inherit a neighboring status row. Add
+`norther_temperature_compensation_postprocessor` only for configs that use the
+Norther temperature-compensation offset convention.
 
 See the [Signal Data Model](../explanation/signal-data-model.md) explanation
 for details on how events map to the backend entity hierarchy.

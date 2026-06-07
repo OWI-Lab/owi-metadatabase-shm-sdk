@@ -41,6 +41,19 @@ print(f"Signals per turbine: {
 }")
 ```
 
+For other wind farms, create a farm-specific YAML processor spec and use that
+processor in the same upload calls:
+
+```python
+from owi.metadatabase.shm import ConfiguredSignalConfigProcessor
+
+processor = ConfiguredSignalConfigProcessor.from_yaml_spec(
+    path_configs="data/MyFarm/signal_configs/",
+    processor_spec_path="config/my_farm_processor.yaml",
+)
+processor.signals_process_data()
+```
+
 ## Step 2 — Set Up the Signal Uploader
 
 The signal uploader needs the SHM transport client and parent SDK clients
