@@ -100,6 +100,10 @@ results = uploader.upload_from_processor_files(
 )
 ```
 
+Temperature compensation map entries are signal identifiers. The uploader also
+accepts already resolved backend signal IDs through the lower-level
+`upload_from_processor()` and `upload_turbines()` methods.
+
 ## What You Learned
 
 - How to process signal configurations with `DefaultSignalConfigProcessor`.

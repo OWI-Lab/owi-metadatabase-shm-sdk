@@ -420,6 +420,27 @@ def test_upload_turbines_keeps_turbine_keys_and_uses_explicit_assetlocations() -
     assert results["T01"].signal_ids_by_name == {"NRT_WTG_TP_STRAIN_LAT02_DEG270_Y": 101}
 
 
+def test_upload_turbines_passes_late_temperature_compensation_refs_to_asset_request() -> None:
+    shm_api = Mock()
+    lookup_service = Mock()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+    mock_upload_asset = Mock(return_value=Mock(asset_key="Project A/WTG-01"))
+    object.__setattr__(uploader, "upload_asset", mock_upload_asset)
+
+    uploader.upload_turbines(
+        projectsite="Project A",
+        signals_by_turbine={"T01": {}},
+        assetlocations_by_turbine={"T01": "WTG-01"},
+        temperature_compensation_signal_refs_by_turbine={"T01": {"TC-1": "TC_SIGNAL"}},
+    )
+
+    request = mock_upload_asset.call_args.args[0]
+    assert isinstance(request, AssetSignalUploadRequest)
+    assert request.projectsite == "Project A"
+    assert request.assetlocation == "WTG-01"
+    assert request.temperature_compensation_signal_refs == {"TC-1": "TC_SIGNAL"}
+
+
 def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None:
     shm_api = Mock()
     lookup_service = Mock()
@@ -447,6 +468,7 @@ def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None
         permission_group_ids=[7, 11],
         sensor_serial_numbers_by_turbine={"T01": {"SIG": 88}},
         temperature_compensation_signal_ids_by_turbine={"T01": {"TC-1": 99}},
+        temperature_compensation_signal_refs_by_turbine={"T01": {"TC-2": "TC_SIGNAL"}},
     )
 
     processor.signals_process_data.assert_called_once_with()
@@ -458,6 +480,7 @@ def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None
         permission_group_ids=[7, 11],
         sensor_serial_numbers_by_turbine={"T01": {"SIG": 88}},
         temperature_compensation_signal_ids_by_turbine={"T01": {"TC-1": 99}},
+        temperature_compensation_signal_refs_by_turbine={"T01": {"TC-2": "TC_SIGNAL"}},
     )
     assert tuple(result) == ("T01",)
 
@@ -693,10 +716,12 @@ def test_request_factory_accepts_generic_processor_output() -> None:
         assetlocation="Asset-01",
         processing_result=processing_result,
         permission_group_ids=[7],
+        temperature_compensation_signal_refs={"TC-1": "TC_SIGNAL"},
     )
 
     assert request.result_key == "Project A/Asset-01"
     assert request.permission_group_ids == [7]
+    assert request.temperature_compensation_signal_refs == {"TC-1": "TC_SIGNAL"}
     assert request.signals["NRT_WTG_TP_STRAIN_LAT01_DEG000_Y"]["offset"][0] == {
         "time": "01/01/1972 00:00",
         "offset": 1.2,
