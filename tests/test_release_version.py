@@ -48,6 +48,17 @@ def test_plan_version_uses_bumpversion_output(monkeypatch: pytest.MonkeyPatch) -
     }
 
 
+def test_plan_version_matches_current_bumpversion_configuration() -> None:
+    """The checked-in bumpversion config matches the current project files."""
+    current_version = release_version.read_project_version()
+
+    assert release_version.plan_version("patch") == {
+        "current_version": current_version,
+        "bump_type": "patch",
+        "next_version": release_version.bump_version(current_version, "patch"),
+    }
+
+
 def test_apply_version_uses_bumpversion_configuration(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Version application is delegated to bumpversion against tracked files."""
     bumpversion_cfg = tmp_path / ".bumpversion.cfg"
