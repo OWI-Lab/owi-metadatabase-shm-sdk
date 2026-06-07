@@ -31,6 +31,23 @@ _GENERAL_SIGNAL_FIELDS = frozenset(
         "Ro",
     }
 )
+_STATUS_ALIASES = {
+    "ok": "ok",
+    "fine": "ok",
+    "notok": "notok",
+    "not_ok": "notok",
+    "not ok": "notok",
+    "not-ok": "notok",
+    "broken": "notok",
+    "issue": "notok",
+    "maintenance": "warning",
+    "warning": "warning",
+    "deactive": "deactive",
+    "deactivated": "deactive",
+    "decommissioned": "deactive",
+    "decomissioned": "deactive",
+    "replaced": "deactive",
+}
 
 
 def _isoformat_timestamp(timestamp: TimestampValue) -> str:
@@ -45,6 +62,16 @@ def _normalize_visibility_groups(permission_group_ids: Sequence[int] | None) -> 
     if permission_group_ids is None:
         return None
     return list(permission_group_ids)
+
+
+def _normalize_status(status: str) -> str:
+    if not isinstance(status, str):
+        raise ValueError(f"Unsupported SHM status {status!r}. Expected a string.")
+    normalized = _STATUS_ALIASES.get(status.strip().lower())
+    if normalized is None:
+        expected = ", ".join(sorted(_STATUS_ALIASES))
+        raise ValueError(f"Unsupported SHM status {status!r}. Expected one of: {expected}.")
+    return normalized
 
 
 def _serialize_json_data(data: Mapping[str, JsonValue]) -> dict[str, JsonValue]:
@@ -123,7 +150,7 @@ class SignalHistoryPayload:
             "signal_id": self.signal_id,
             "activity_start_timestamp": _isoformat_timestamp(self.activity_start_timestamp),
             "is_latest_status": self.is_latest_status,
-            "status": self.status,
+            "status": _normalize_status(self.status),
             "sensor_serial_number": self.sensor_serial_number,
             "status_approval": self.status_approval,
         }
@@ -290,7 +317,7 @@ class DerivedSignalHistoryPayload:
         payload: dict[str, Any] = {
             "activity_start_timestamp": _isoformat_timestamp(self.activity_start_timestamp),
             "is_latest_status": self.is_latest_status,
-            "status": self.status,
+            "status": _normalize_status(self.status),
             "derived_signal_id": self.derived_signal_id,
             "status_approval": self.status_approval,
         }

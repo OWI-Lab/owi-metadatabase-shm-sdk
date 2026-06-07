@@ -5,6 +5,7 @@ import pytest
 
 from owi.metadatabase.shm.signal_ids import parse_legacy_signal_id
 from owi.metadatabase.shm.upload.payloads import (
+    DerivedSignalHistoryPayload,
     SensorCalibrationPayload,
     build_derived_signal_calibration_payloads,
     build_derived_signal_main_payload,
@@ -92,12 +93,47 @@ def test_build_signal_status_payloads_only_mark_latest_entry() -> None:
             "signal_id": 77,
             "activity_start_timestamp": "2026-03-24T09:30:00",
             "is_latest_status": True,
-            "status": "maintenance",
+            "status": "warning",
             "sensor_serial_number": 88,
             "status_approval": "yes",
             "legacy_signal_id": "LEG-002",
         },
     ]
+
+
+def test_build_signal_status_payloads_normalizes_backend_status_aliases() -> None:
+    payloads = build_signal_status_payloads(
+        77,
+        {
+            "status": [
+                {"time": "24/03/2026 08:00:00", "status": "fine"},
+                {"time": "24/03/2026 09:00:00", "status": "broken"},
+                {"time": "24/03/2026 10:00:00", "status": "replaced"},
+            ]
+        },
+    )
+
+    assert [payload["status"] for payload in payloads] == ["ok", "notok", "deactive"]
+
+
+def test_build_signal_status_payloads_raise_for_unknown_status() -> None:
+    with pytest.raises(ValueError, match="Unsupported SHM status 'paused'"):
+        build_signal_status_payloads(
+            77,
+            {"status": [{"time": "24/03/2026 08:00:00", "status": "paused"}]},
+        )
+
+
+def test_derived_signal_history_payload_normalizes_status_aliases() -> None:
+    payload = DerivedSignalHistoryPayload(
+        derived_signal_id=501,
+        activity_start_timestamp="24/03/2026 08:00:00",
+        is_latest_status=True,
+        status="decomissioned",
+        parent_signals=[77],
+    ).to_payload()
+
+    assert payload["status"] == "deactive"
 
 
 def test_build_signal_calibration_payloads_preserve_archive_json_shapes() -> None:

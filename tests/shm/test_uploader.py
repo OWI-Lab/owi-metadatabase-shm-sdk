@@ -852,7 +852,7 @@ def test_upload_from_processor_batches_real_config_files_through_public_src_surf
                 "signal_id": 102,
                 "activity_start_timestamp": "2026-03-24T09:00:00",
                 "is_latest_status": True,
-                "status": "maintenance",
+                "status": "warning",
                 "sensor_serial_number": None,
                 "status_approval": "yes",
             }
