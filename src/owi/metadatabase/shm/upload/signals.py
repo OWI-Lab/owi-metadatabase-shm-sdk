@@ -123,6 +123,7 @@ class ShmSignalUploader:
             explicit_ids=request.temperature_compensation_signal_ids,
             refs=request.temperature_compensation_signal_refs,
             signal_ids_by_name=signal_ids_by_name,
+            asset_key=request.result_key,
         )
         results_secondary = self._upload_signal_secondary_data(
             request.signals,
@@ -333,8 +334,8 @@ class ShmSignalUploader:
             final sensor lookup.
         path_sensor_tc_map
             Optional JSON file keyed by turbine with temperature-
-            compensation signal identifiers to resolve through
-            ``get_signal()``.
+            compensation signal identifiers resolved after main signal
+            creation.
         assetlocations_by_turbine
             Optional turbine-to-asset-location override mapping.
         permission_group_ids
@@ -357,7 +358,7 @@ class ShmSignalUploader:
         """
         processor.signals_process_data()
         sensor_serial_numbers_by_turbine = self._resolve_sensor_serial_numbers_by_turbine(path_signal_sensor_map)
-        temperature_compensation_signal_ids_by_turbine = self._resolve_temperature_compensation_signal_ids_by_turbine(
+        temperature_compensation_signal_refs_by_turbine = self._load_temperature_compensation_signal_refs_by_turbine(
             path_sensor_tc_map
         )
         return self.upload_turbines(
@@ -367,7 +368,7 @@ class ShmSignalUploader:
             assetlocations_by_turbine=assetlocations_by_turbine,
             permission_group_ids=permission_group_ids,
             sensor_serial_numbers_by_turbine=sensor_serial_numbers_by_turbine,
-            temperature_compensation_signal_ids_by_turbine=(temperature_compensation_signal_ids_by_turbine),
+            temperature_compensation_signal_refs_by_turbine=(temperature_compensation_signal_refs_by_turbine),
         )
 
     @staticmethod
@@ -440,10 +441,10 @@ class ShmSignalUploader:
             label=f"sensor for signal '{signal_name}' on turbine '{turbine}'",
         )
 
-    def _resolve_temperature_compensation_signal_ids_by_turbine(
+    def _load_temperature_compensation_signal_refs_by_turbine(
         self,
         path_sensor_tc_map: str | Path | None,
-    ) -> dict[str, dict[str, int]] | None:
+    ) -> dict[str, dict[str, str]] | None:
         raw_map = self._load_turbine_file_map(
             path_sensor_tc_map,
             label="Temperature-compensation map",
@@ -451,7 +452,7 @@ class ShmSignalUploader:
         if raw_map is None:
             return None
 
-        resolved: dict[str, dict[str, int]] = {}
+        refs: dict[str, dict[str, str]] = {}
         for turbine, signal_names in raw_map.items():
             if not isinstance(turbine, str):
                 raise ShmUploadError("Temperature-compensation map keys must be turbine names.")
@@ -460,19 +461,15 @@ class ShmSignalUploader:
                     f"Temperature-compensation map for turbine '{turbine}' must be a list of signal ids."
                 )
 
-            resolved[turbine] = {}
+            refs[turbine] = {}
             for signal_name in signal_names:
                 if not isinstance(signal_name, str):
                     raise ShmUploadError(
                         f"Temperature-compensation map for turbine '{turbine}' must contain string signal ids."
                     )
-                result = self.shm_api.get_signal(signal_name)
-                resolved[turbine][signal_name] = self._require_existing_result_id(
-                    result,
-                    label=(f"temperature-compensation signal '{signal_name}' on turbine '{turbine}'"),
-                )
+                refs[turbine][signal_name] = signal_name
 
-        return resolved
+        return refs
 
     def _resolve_temperature_compensation_signal_ids(
         self,
@@ -480,11 +477,29 @@ class ShmSignalUploader:
         explicit_ids: TemperatureCompensationSignalIDMap | None,
         refs: TemperatureCompensationSignalRefMap | None,
         signal_ids_by_name: Mapping[str, int],
+        asset_key: str,
     ) -> TemperatureCompensationSignalIDMap | None:
-        _ = refs, signal_ids_by_name
-        if explicit_ids is None:
+        if explicit_ids is None and refs is None:
             return None
-        return dict(explicit_ids)
+
+        resolved = dict(explicit_ids or {})
+        if refs is None:
+            return resolved
+
+        for token, signal_name in refs.items():
+            if token in resolved:
+                continue
+
+            signal_id = signal_ids_by_name.get(signal_name)
+            if signal_id is None:
+                result = self.shm_api.get_signal(signal_name)
+                signal_id = self._require_existing_result_id(
+                    result,
+                    label=(f"temperature-compensation signal '{signal_name}' for asset '{asset_key}'"),
+                )
+            resolved[token] = signal_id
+
+        return resolved
 
     def _upload_main_signals(
         self,

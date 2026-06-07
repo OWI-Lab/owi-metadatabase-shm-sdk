@@ -587,6 +587,71 @@ def test_upload_from_processor_files_resolves_archive_style_file_maps(
     assert results["T01"].asset_key == "Project A/WTG-01"
 
 
+def test_upload_from_processor_files_resolves_temperature_compensation_from_created_signals(tmp_path) -> None:
+    signal_name = "WTG_A01_TP_STRAIN_LAT02_DEG270_Y"
+    tc_signal_name = "WTG_A01_TP_TC_LAT015_DEG050_nr1"
+    sensor_tc_map_path = tmp_path / "sensor_tc_map.json"
+    sensor_tc_map_path.write_text(json.dumps({"T01": [tc_signal_name]}), encoding="utf-8")
+
+    shm_api = Mock()
+    shm_api.create_signal.side_effect = [
+        {"id": 101, "exists": True},
+        {"id": 909, "exists": True},
+    ]
+    shm_api.create_signal_calibration.return_value = {"id": 301, "exists": True}
+
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    processor = Mock()
+    processor.signals_data = {
+        "T01": {
+            signal_name: {
+                "heading": "N",
+                "level": 2,
+                "orientation": "Y",
+                "offset": [
+                    {
+                        "time": "24/03/2026 08:15:00",
+                        "offset": 1.25,
+                        "TCSensor": tc_signal_name,
+                    }
+                ],
+            },
+            tc_signal_name: {
+                "heading": "N",
+                "level": 2,
+            },
+        }
+    }
+    processor.signals_derived_data = {"T01": {}}
+
+    results = uploader.upload_from_processor_files(
+        projectsite="Project A",
+        processor=cast(SignalConfigUploadSource, processor),
+        path_sensor_tc_map=sensor_tc_map_path,
+        assetlocations_by_turbine={"T01": "WTG-01"},
+        permission_group_ids=[7],
+    )
+
+    shm_api.get_signal.assert_not_called()
+    assert shm_api.create_signal.call_count == 2
+    shm_api.create_signal_calibration.assert_called_once_with(
+        {
+            "signal_id": 101,
+            "calibration_date": "2026-03-24T08:15:00",
+            "data": '{"offset": 1.25}',
+            "tempcomp_signal_id": 909,
+            "status_approval": "yes",
+        }
+    )
+    assert results["T01"].signal_ids_by_name == {
+        signal_name: 101,
+        tc_signal_name: 909,
+    }
+
+
 def test_upload_from_processor_batches_real_config_files_through_public_src_surface(tmp_path) -> None:
     (tmp_path / "T01.json").write_text(
         json.dumps(
