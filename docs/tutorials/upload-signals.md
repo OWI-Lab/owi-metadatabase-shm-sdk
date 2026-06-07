@@ -86,6 +86,18 @@ for turbine, result in results.items():
           f"{len(result.derived_signal_ids_by_name)} derived signals")
 ```
 
+If the parent geometry data contains multiple model definitions for the same
+asset location, pass the model-definition title explicitly:
+
+```python
+results = uploader.upload_from_processor(
+    projectsite="Norther",
+    processor=processor,
+    model_definition="Norther SHM model",
+    permission_group_ids=[1, 2],
+)
+```
+
 ## Step 4 — Upload with Sensor Maps (Optional)
 
 If you have sensor-serial-number mappings and temperature compensation maps:
@@ -96,6 +108,7 @@ results = uploader.upload_from_processor_files(
     processor=processor,
     path_signal_sensor_map="data/Norther/signal_sensor_map.json",
     path_sensor_tc_map="data/Norther/sensor_tc_map.json",
+    model_definition="Norther SHM model",
     permission_group_ids=[1, 2],
 )
 ```
