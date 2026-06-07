@@ -26,4 +26,5 @@ derived_signal_strategies:
     parent_signals_builder: parent_signals_from_nested_sensors
     calibration_fields_builder: strain_calibration_fields
 postprocessors:
-  - default_signal_postprocessor
+  - status_alias_postprocessor
+  - norther_temperature_compensation_postprocessor
