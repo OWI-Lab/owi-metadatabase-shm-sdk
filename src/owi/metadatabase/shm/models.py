@@ -156,6 +156,7 @@ class DerivedSignalHistoryRecord(ShmResourceRecord):
     timestamp: datetime | None = None
     is_latest_status: bool | None = None
     status: str | None = None
+    status_approval: str | None = None
     parent_signals: list[int] | None = None
     value: float | None = None
 

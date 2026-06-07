@@ -1,4 +1,10 @@
-from owi.metadatabase.shm.models import SensorTypeRecord, ShmEntityName, ShmQuery, SignalRecord
+from owi.metadatabase.shm.models import (
+    DerivedSignalHistoryRecord,
+    SensorTypeRecord,
+    ShmEntityName,
+    ShmQuery,
+    SignalRecord,
+)
 
 
 def test_shm_query_roundtrips_backend_filters() -> None:
@@ -25,3 +31,9 @@ def test_sensor_type_record_preserves_visibility_groups() -> None:
     record = SensorTypeRecord.model_validate({"id": 2, "name": "393B04", "visibility_groups": [1, 4]})
 
     assert record.visibility_groups == [1, 4]
+
+
+def test_derived_signal_history_record_preserves_status_approval() -> None:
+    record = DerivedSignalHistoryRecord.model_validate({"id": 9, "status_approval": "yes"})
+
+    assert record.status_approval == "yes"
