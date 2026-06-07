@@ -110,11 +110,14 @@ class ShmSignalUploader:
             Created backend ids plus raw backend responses grouped by upload
             phase.
         """
-        upload_context = self.lookup_service.get_signal_upload_context(
-            projectsite=request.projectsite,
-            assetlocation=request.assetlocation,
-            permission_group_ids=request.permission_group_ids,
-        )
+        lookup_kwargs: dict[str, Any] = {
+            "projectsite": request.projectsite,
+            "assetlocation": request.assetlocation,
+            "permission_group_ids": request.permission_group_ids,
+        }
+        if request.model_definition is not None:
+            lookup_kwargs["model_definition"] = request.model_definition
+        upload_context = self.lookup_service.get_signal_upload_context(**lookup_kwargs)
         signal_ids_by_name, results_main = self._upload_main_signals(
             request.signals,
             upload_context,
@@ -182,6 +185,7 @@ class ShmSignalUploader:
         derived_signals_by_turbine: SignalConfigMapByTurbine | None = None,
         assetlocations_by_turbine: Mapping[str, str] | None = None,
         permission_group_ids: Sequence[int] | None = None,
+        model_definition: str | None = None,
         sensor_serial_numbers_by_turbine: Mapping[str, Mapping[str, int]] | None = None,
         temperature_compensation_signal_ids_by_turbine: Mapping[str, TemperatureCompensationSignalIDMap] | None = None,
         temperature_compensation_signal_refs_by_turbine: (
@@ -202,6 +206,9 @@ class ShmSignalUploader:
             Optional turbine-to-asset-location override mapping.
         permission_group_ids
             Visibility groups applied to created SHM objects.
+        model_definition
+            Optional parent SDK model-definition title used when the project
+            has multiple model definitions for the same asset location.
         sensor_serial_numbers_by_turbine
             Optional per-turbine mapping of signal identifiers to sensor serial
             numbers used for signal history rows.
@@ -249,6 +256,7 @@ class ShmSignalUploader:
                     signals=signals,
                     derived_signals=derived_signals,
                     permission_group_ids=permission_group_ids,
+                    model_definition=model_definition,
                     sensor_serial_numbers_by_signal=sensor_serial_numbers_by_signal,
                     temperature_compensation_signal_ids=temperature_compensation_signal_ids,
                     temperature_compensation_signal_refs=temperature_compensation_signal_refs,
@@ -263,6 +271,7 @@ class ShmSignalUploader:
         processor: SignalConfigUploadSource,
         assetlocations_by_turbine: Mapping[str, str] | None = None,
         permission_group_ids: Sequence[int] | None = None,
+        model_definition: str | None = None,
         sensor_serial_numbers_by_turbine: Mapping[str, Mapping[str, int]] | None = None,
         temperature_compensation_signal_ids_by_turbine: Mapping[str, TemperatureCompensationSignalIDMap] | None = None,
         temperature_compensation_signal_refs_by_turbine: (
@@ -282,6 +291,9 @@ class ShmSignalUploader:
             Optional turbine-to-asset-location override mapping.
         permission_group_ids
             Visibility groups applied to created SHM objects.
+        model_definition
+            Optional parent SDK model-definition title used when the project
+            has multiple model definitions for the same asset location.
         sensor_serial_numbers_by_turbine
             Optional per-turbine mapping of signal identifiers to sensor serial
             numbers used for signal history rows.
@@ -304,6 +316,7 @@ class ShmSignalUploader:
             derived_signals_by_turbine=processor.signals_derived_data,
             assetlocations_by_turbine=assetlocations_by_turbine,
             permission_group_ids=permission_group_ids,
+            model_definition=model_definition,
             sensor_serial_numbers_by_turbine=sensor_serial_numbers_by_turbine,
             temperature_compensation_signal_ids_by_turbine=(temperature_compensation_signal_ids_by_turbine),
             temperature_compensation_signal_refs_by_turbine=(temperature_compensation_signal_refs_by_turbine),
@@ -318,6 +331,7 @@ class ShmSignalUploader:
         path_sensor_tc_map: str | Path | None = None,
         assetlocations_by_turbine: Mapping[str, str] | None = None,
         permission_group_ids: Sequence[int] | None = None,
+        model_definition: str | None = None,
     ) -> dict[str, AssetSignalUploadResult]:
         """Process configs, resolve optional file maps, and upload by turbine.
 
@@ -340,6 +354,9 @@ class ShmSignalUploader:
             Optional turbine-to-asset-location override mapping.
         permission_group_ids
             Visibility groups applied to created SHM objects.
+        model_definition
+            Optional parent SDK model-definition title used when the project
+            has multiple model definitions for the same asset location.
 
         Returns
         -------
@@ -367,6 +384,7 @@ class ShmSignalUploader:
             derived_signals_by_turbine=processor.signals_derived_data,
             assetlocations_by_turbine=assetlocations_by_turbine,
             permission_group_ids=permission_group_ids,
+            model_definition=model_definition,
             sensor_serial_numbers_by_turbine=sensor_serial_numbers_by_turbine,
             temperature_compensation_signal_refs_by_turbine=(temperature_compensation_signal_refs_by_turbine),
         )

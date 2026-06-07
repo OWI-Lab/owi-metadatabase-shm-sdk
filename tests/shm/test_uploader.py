@@ -175,6 +175,29 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
     assert result.derived_signal_ids_by_name == {"NRT_WTG_TP_YAW_LAT01_DEG000_Y": 501}
 
 
+def test_upload_asset_passes_explicit_model_definition_to_lookup() -> None:
+    shm_api = Mock()
+    lookup_service = Mock()
+    lookup_service.get_signal_upload_context.return_value = _upload_context()
+    uploader = ShmSignalUploader(shm_api=shm_api, lookup_service=lookup_service)
+
+    uploader.upload_asset(
+        AssetSignalUploadRequest(
+            projectsite="Project A",
+            assetlocation="Asset-01",
+            signals={},
+            model_definition="MD-02",
+        )
+    )
+
+    lookup_service.get_signal_upload_context.assert_called_once_with(
+        projectsite="Project A",
+        assetlocation="Asset-01",
+        permission_group_ids=None,
+        model_definition="MD-02",
+    )
+
+
 def test_upload_asset_falls_back_to_signal_lookup_for_parent_ids() -> None:
     shm_api = Mock()
     shm_api.create_derived_signal.return_value = {"id": 501, "exists": True}
@@ -515,6 +538,7 @@ def test_upload_turbines_passes_late_temperature_compensation_refs_to_asset_requ
         projectsite="Project A",
         signals_by_turbine={"T01": {}},
         assetlocations_by_turbine={"T01": "WTG-01"},
+        model_definition="MD-02",
         temperature_compensation_signal_refs_by_turbine={"T01": {"TC-1": "TC_SIGNAL"}},
     )
 
@@ -522,6 +546,7 @@ def test_upload_turbines_passes_late_temperature_compensation_refs_to_asset_requ
     assert isinstance(request, AssetSignalUploadRequest)
     assert request.projectsite == "Project A"
     assert request.assetlocation == "WTG-01"
+    assert request.model_definition == "MD-02"
     assert request.temperature_compensation_signal_refs == {"TC-1": "TC_SIGNAL"}
 
 
@@ -550,6 +575,7 @@ def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None
         processor=cast(SignalConfigUploadSource, processor),
         assetlocations_by_turbine={"T01": "WTG-01"},
         permission_group_ids=[7, 11],
+        model_definition="MD-02",
         sensor_serial_numbers_by_turbine={"T01": {"SIG": 88}},
         temperature_compensation_signal_ids_by_turbine={"T01": {"TC-1": 99}},
         temperature_compensation_signal_refs_by_turbine={"T01": {"TC-2": "TC_SIGNAL"}},
@@ -562,6 +588,7 @@ def test_upload_from_processor_processes_configs_then_uploads_turbines() -> None
         derived_signals_by_turbine=processor.signals_derived_data,
         assetlocations_by_turbine={"T01": "WTG-01"},
         permission_group_ids=[7, 11],
+        model_definition="MD-02",
         sensor_serial_numbers_by_turbine={"T01": {"SIG": 88}},
         temperature_compensation_signal_ids_by_turbine={"T01": {"TC-1": 99}},
         temperature_compensation_signal_refs_by_turbine={"T01": {"TC-2": "TC_SIGNAL"}},
@@ -633,6 +660,7 @@ def test_upload_from_processor_files_resolves_archive_style_file_maps(
         path_sensor_tc_map=sensor_tc_map_path,
         assetlocations_by_turbine={"T01": "WTG-01"},
         permission_group_ids=[7],
+        model_definition="MD-02",
     )
 
     processor.signals_process_data.assert_called_once_with()
@@ -647,6 +675,7 @@ def test_upload_from_processor_files_resolves_archive_style_file_maps(
         projectsite="Project A",
         assetlocation="WTG-01",
         permission_group_ids=[7],
+        model_definition="MD-02",
     )
     shm_api.create_signal_history.assert_called_once_with(
         {
@@ -865,11 +894,13 @@ def test_request_factory_accepts_generic_processor_output() -> None:
         assetlocation="Asset-01",
         processing_result=processing_result,
         permission_group_ids=[7],
+        model_definition="MD-02",
         temperature_compensation_signal_refs={"TC-1": "TC_SIGNAL"},
     )
 
     assert request.result_key == "Project A/Asset-01"
     assert request.permission_group_ids == [7]
+    assert request.model_definition == "MD-02"
     assert request.temperature_compensation_signal_refs == {"TC-1": "TC_SIGNAL"}
     assert request.signals["NRT_WTG_TP_STRAIN_LAT01_DEG000_Y"]["offset"][0] == {
         "time": "01/01/1972 00:00",

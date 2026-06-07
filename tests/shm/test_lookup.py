@@ -172,6 +172,50 @@ def test_transition_piece_model_definition_rejects_ambiguous_backend_data() -> N
         service.get_asset_context(projectsite="Project A", assetlocation="Asset-01")
 
 
+def test_get_asset_context_accepts_explicit_model_definition_for_ambiguous_backend_data() -> None:
+    locations_client = Mock()
+    geometry_client = Mock()
+    locations_client.get_projectsite_detail.return_value = {
+        "data": pd.DataFrame([{"id": 10, "title": "Project A"}]),
+        "exists": True,
+        "id": 10,
+    }
+    locations_client.get_assetlocation_detail.return_value = {
+        "data": pd.DataFrame([{"id": 11, "title": "Asset-01"}]),
+        "exists": True,
+        "id": 11,
+    }
+    geometry_client.get_subassemblies.return_value = {
+        "data": pd.DataFrame(
+            [
+                {"subassembly_type": "TP", "model_definition": "MD-01"},
+                {"subassembly_type": "TP", "model_definition": "MD-02"},
+            ]
+        ),
+        "exists": True,
+    }
+    geometry_client.get_modeldefinition_id.return_value = {"id": 202, "multiple_modeldef": True}
+    service = ParentSDKLookupService(locations_client=locations_client, geometry_client=geometry_client)
+
+    context = service.get_asset_context(
+        projectsite="Project A",
+        assetlocation="Asset-01",
+        model_definition="MD-02",
+    )
+
+    geometry_client.get_subassemblies.assert_called_once_with(
+        projectsite="Project A",
+        assetlocation="Asset-01",
+        model_definition="MD-02",
+    )
+    geometry_client.get_modeldefinition_id.assert_called_once_with(
+        assetlocation="Asset-01",
+        projectsite="Project A",
+        model_definition="MD-02",
+    )
+    assert context.model_definition == 202
+
+
 def test_get_signal_upload_context_builds_payload_builder_context() -> None:
     locations_client = Mock()
     geometry_client = Mock()

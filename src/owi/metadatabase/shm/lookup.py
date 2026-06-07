@@ -161,6 +161,7 @@ class ParentSDKLookupService:
         self,
         projectsite: str | None,
         assetlocation: str,
+        model_definition: str | None = None,
     ) -> AssetLookupContext:
         """Resolve the lookup context needed for an SHM asset workflow.
 
@@ -171,6 +172,9 @@ class ParentSDKLookupService:
             derives it from the asset-location lookup data.
         assetlocation
             Parent SDK asset location title.
+        model_definition
+            Optional parent SDK model-definition title used when an asset has
+            subassemblies for multiple model definitions.
 
         Returns
         -------
@@ -205,11 +209,19 @@ class ParentSDKLookupService:
         asset = self.get_assetlocation(assetlocation=assetlocation, projectsite=projectsite)
         resolved_projectsite = projectsite or self._resolve_projectsite_name(asset, assetlocation)
         site = self.get_projectsite(projectsite=resolved_projectsite)
-        subassemblies = self.get_subassemblies(assetlocation=assetlocation, projectsite=resolved_projectsite)
+        subassembly_kwargs: dict[str, str] = {}
+        if model_definition is not None:
+            subassembly_kwargs["model_definition"] = model_definition
+        subassemblies = self.get_subassemblies(
+            assetlocation=assetlocation,
+            projectsite=resolved_projectsite,
+            **subassembly_kwargs,
+        )
         model_definition = self.get_model_definition(
             subassemblies=subassemblies,
             assetlocation=assetlocation,
             projectsite=resolved_projectsite,
+            model_definition=model_definition,
         )
         return AssetLookupContext(
             site=site,
@@ -223,6 +235,7 @@ class ParentSDKLookupService:
         projectsite: str | None,
         assetlocation: str,
         permission_group_ids: Sequence[int] | None = None,
+        model_definition: str | None = None,
     ) -> SignalUploadContext:
         """Resolve the payload-builder context for SHM signal uploads.
 
@@ -235,6 +248,9 @@ class ParentSDKLookupService:
             Parent SDK asset location title.
         permission_group_ids
             Visibility groups applied to created SHM records.
+        model_definition
+            Optional parent SDK model-definition title used when an asset has
+            subassemblies for multiple model definitions.
 
         Returns
         -------
@@ -273,6 +289,7 @@ class ParentSDKLookupService:
         asset_context = self.get_asset_context(
             projectsite=projectsite,
             assetlocation=assetlocation,
+            model_definition=model_definition,
         )
         return self.build_signal_upload_context(
             asset_context=asset_context,
@@ -340,15 +357,17 @@ class ParentSDKLookupService:
         subassemblies: LookupRecord,
         assetlocation: str,
         projectsite: str,
+        model_definition: str | None = None,
     ) -> int | str:
         """Resolve the model definition reference used by SHM payload builders.
 
-        The lookup prefers the transition-piece model definition present on
-        the subassembly rows and, when the parent geometry client exposes
-        ``get_modeldefinition_id()``, upgrades a model-definition title into
-        the corresponding backend id.
+        The lookup uses an explicit model-definition title when provided.
+        Otherwise it derives the title from transition-piece subassembly rows.
+        When the parent geometry client exposes ``get_modeldefinition_id()``,
+        it upgrades a model-definition title into the corresponding backend id.
         """
-        model_definition = self.get_transition_piece_model_definition(subassemblies=subassemblies)
+        if model_definition is None:
+            model_definition = self.get_transition_piece_model_definition(subassemblies=subassemblies)
         if isinstance(model_definition, int):
             return model_definition
 
