@@ -1,4 +1,3 @@
-import json
 from datetime import date
 from pathlib import Path
 
@@ -61,12 +60,10 @@ def test_build_signal_main_payload_serializes_archive_misc_fields() -> None:
         "visibility": "usergroup",
         "visibility_groups": [7, 11],
         "sub_assembly": 40,
-        "data_additional": json.dumps(
-            {
-                "custom_factor": 1.5,
-                "calculation": {"window": "10m"},
-            }
-        ),
+        "data_additional": {
+            "custom_factor": 1.5,
+            "calculation": {"window": "10m"},
+        },
     }
 
 
@@ -128,22 +125,20 @@ def test_build_signal_calibration_payloads_preserve_archive_json_shapes() -> Non
         {
             "signal_id": 77,
             "calibration_date": "2026-03-24T08:15:00",
-            "data": json.dumps(
-                {
-                    "offset": 1.25,
-                    "Coefficients": [1.0, 2.0],
-                    "t_ref": 21.5,
-                    "gauge_correction": 0.2,
-                    "lead_correction": {"t_ref": 25.0, "coef": 0.5},
-                }
-            ),
+            "data": {
+                "offset": 1.25,
+                "Coefficients": [1.0, 2.0],
+                "t_ref": 21.5,
+                "gauge_correction": 0.2,
+                "lead_correction": {"t_ref": 25.0, "coef": 0.5},
+            },
             "tempcomp_signal_id": 101,
             "status_approval": "yes",
         },
         {
             "signal_id": 77,
             "calibration_date": "2026-03-24T08:30:00",
-            "data": json.dumps({"cwl": 13.4}),
+            "data": {"cwl": 13.4},
             "tempcomp_signal_id": None,
             "status_approval": "yes",
         },
@@ -188,7 +183,7 @@ def test_build_derived_signal_payloads_keep_archive_contract() -> None:
         "visibility": "usergroup",
         "visibility_groups": [7, 11],
         "sub_assembly": 40,
-        "data_additional": json.dumps({"window": "10m", "formula": "yaw_a - yaw_b"}),
+        "data_additional": {"window": "10m", "formula": "yaw_a - yaw_b"},
     }
     assert status_payload == {
         "activity_start_timestamp": "2026-03-24T07:45:00",
@@ -201,13 +196,11 @@ def test_build_derived_signal_payloads_keep_archive_contract() -> None:
     assert calibration_payloads == [
         {
             "calibration_date": "2026-03-24T07:45:00",
-            "data": json.dumps(
-                {
-                    "yaw_parameter": "offset",
-                    "yaw_offset": 4.5,
-                    "measurement_location": "nacelle",
-                }
-            ),
+            "data": {
+                "yaw_parameter": "offset",
+                "yaw_offset": 4.5,
+                "measurement_location": "nacelle",
+            },
             "derived_signal_id": 501,
             "status_approval": "yes",
         }

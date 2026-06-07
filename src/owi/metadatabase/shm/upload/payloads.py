@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, time
@@ -48,8 +47,8 @@ def _normalize_visibility_groups(permission_group_ids: Sequence[int] | None) -> 
     return list(permission_group_ids)
 
 
-def _serialize_json_data(data: Mapping[str, JsonValue]) -> str:
-    return json.dumps(dict(data))
+def _serialize_json_data(data: Mapping[str, JsonValue]) -> dict[str, JsonValue]:
+    return dict(data)
 
 
 def _legacy_signal_misc_data(signal_data: Mapping[str, JsonValue]) -> dict[str, JsonValue]:

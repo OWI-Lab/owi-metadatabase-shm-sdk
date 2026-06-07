@@ -128,11 +128,13 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
             {
                 "signal_id": 101,
                 "calibration_date": "2026-03-24T08:15:00",
-                "data": (
-                    '{"offset": 1.25, "Coefficients": [1.0, 2.0], '
-                    '"t_ref": 21.5, "gauge_correction": 0.2, '
-                    '"lead_correction": {"t_ref": 25.0, "coef": 0.5}}'
-                ),
+                "data": {
+                    "offset": 1.25,
+                    "Coefficients": [1.0, 2.0],
+                    "t_ref": 21.5,
+                    "gauge_correction": 0.2,
+                    "lead_correction": {"t_ref": 25.0, "coef": 0.5},
+                },
                 "tempcomp_signal_id": 909,
                 "status_approval": "yes",
             }
@@ -141,7 +143,7 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
             {
                 "signal_id": 101,
                 "calibration_date": "2026-03-24T08:30:00",
-                "data": '{"cwl": 13.4}',
+                "data": {"cwl": 13.4},
                 "tempcomp_signal_id": None,
                 "status_approval": "yes",
             }
@@ -163,7 +165,7 @@ def test_upload_asset_uses_lookup_context_and_shm_transport_helpers() -> None:
     shm_api.create_derived_signal_calibration.assert_called_once_with(
         {
             "calibration_date": "2026-03-24T07:45:00",
-            "data": '{"yaw_parameter": "offset", "yaw_offset": 4.5}',
+            "data": {"yaw_parameter": "offset", "yaw_offset": 4.5},
             "derived_signal_id": 501,
             "status_approval": "yes",
         }
@@ -291,7 +293,7 @@ def test_upload_asset_prefers_explicit_temperature_compensation_ids_over_refs() 
         {
             "signal_id": 101,
             "calibration_date": "2026-03-24T08:15:00",
-            "data": '{"offset": 1.25}',
+            "data": {"offset": 1.25},
             "tempcomp_signal_id": 909,
             "status_approval": "yes",
         }
@@ -660,7 +662,7 @@ def test_upload_from_processor_files_resolves_archive_style_file_maps(
         {
             "signal_id": 101,
             "calibration_date": "2026-03-24T08:15:00",
-            "data": '{"offset": 1.25}',
+            "data": {"offset": 1.25},
             "tempcomp_signal_id": 909,
             "status_approval": "yes",
         }
@@ -723,7 +725,7 @@ def test_upload_from_processor_files_resolves_temperature_compensation_from_crea
         {
             "signal_id": 101,
             "calibration_date": "2026-03-24T08:15:00",
-            "data": '{"offset": 1.25}',
+            "data": {"offset": 1.25},
             "tempcomp_signal_id": 909,
             "status_approval": "yes",
         }
@@ -831,7 +833,7 @@ def test_upload_from_processor_batches_real_config_files_through_public_src_surf
         {
             "signal_id": 101,
             "calibration_date": "1972-01-01T00:00:00",
-            "data": '{"offset": 1.2}',
+            "data": {"offset": 1.2},
             "tempcomp_signal_id": 909,
             "status_approval": "yes",
         }
