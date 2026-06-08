@@ -1,11 +1,12 @@
-# Dry-Run Upload Architecture
+# Optional Upload Dry Runs
 
-Dry-run upload support should use the same uploader entry points as a live
-upload, but replace the backend transport with an in-memory client.
+Dry-run upload support is an optional validation aid. It uses the same uploader
+entry points as a live upload, but replaces the backend transport with an
+in-memory client.
 
 ## Goal
 
-The dry-run path should answer two questions before a real backend mutation:
+The dry-run path answers two questions before a real backend mutation:
 
 - which create, patch, and lookup operations would the uploader execute;
 - which payloads would be sent for each operation.
@@ -14,9 +15,9 @@ It should not add a `dry_run` flag to `ShmSensorUploader` or
 `ShmSignalUploader`. Those orchestrators already depend on protocol-shaped
 transport clients, so dry-run behavior belongs in a transport replacement.
 
-## Proposed Shape
+## Shape
 
-Users should construct a dry-run client and pass it to the existing uploader:
+Users construct a dry-run client and pass it to the existing uploader:
 
 ```python
 dry_api = DryRunSignalUploadClient(...)
@@ -26,7 +27,7 @@ result = uploader.upload_asset(request)
 operations = dry_api.operations
 ```
 
-Sensor upload should follow the same pattern:
+Sensor upload follows the same pattern:
 
 ```python
 dry_api = DryRunSensorUploadClient(...)
@@ -38,7 +39,7 @@ operations = dry_api.operations
 
 ## Expected Behavior
 
-A dry-run client should:
+A dry-run client:
 
 - never call `requests` or any live backend transport;
 - assign deterministic synthetic ids to records it creates;
@@ -47,8 +48,8 @@ A dry-run client should:
 - return response dictionaries shaped like `ShmAPI` mutation and lookup results;
 - require explicit seed data for lookups that depend on existing backend rows.
 
-Signal dry-run lookup seeds should cover sensor types, sensors, and existing
-signals. Sensor dry-run lookup seeds should cover sensor types and sensors.
+Signal dry-run lookup seeds cover sensor types, sensors, and existing signals.
+Sensor dry-run lookup seeds cover sensor types and sensors.
 Upload context resolution remains outside the SHM transport client and should
 continue to be provided by the existing lookup service seam.
 

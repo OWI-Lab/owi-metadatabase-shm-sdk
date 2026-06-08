@@ -45,7 +45,6 @@ nav = [
   { "Explanation" = [
     { "Overview" = "explanation/index.md" },
     { "Architecture" = "explanation/architecture.md" },
-    { "Dry-Run Upload Architecture" = "explanation/dry-run-upload.md" },
     { "Sensor Data Model" = "explanation/sensor-data-model.md" },
     { "Signal Data Model" = "explanation/signal-data-model.md" },
     { "Namespace Packages" = "explanation/namespace-packages.md" },
