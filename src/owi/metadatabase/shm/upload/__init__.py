@@ -4,6 +4,12 @@ Re-exports all public symbols so ``from owi.metadatabase.shm.upload import X``
 works unchanged.
 """
 
+from .dry_run import (
+    DryRunOperation,
+    DryRunSensorUploadClient,
+    DryRunSignalUploadClient,
+    DryRunUploadClient,
+)
 from .errors import ParentSignalLookupError, ShmUploadError, UploadResultError
 from .models import AssetSignalUploadRequest, AssetSignalUploadResult
 from .payloads import (
@@ -44,6 +50,10 @@ __all__ = [
     "DerivedSignalCalibrationPayload",
     "DerivedSignalHistoryPayload",
     "DerivedSignalPayload",
+    "DryRunOperation",
+    "DryRunSensorUploadClient",
+    "DryRunSignalUploadClient",
+    "DryRunUploadClient",
     "ParentSignalLookupError",
     "SensorCalibrationPayload",
     "SensorPayload",
