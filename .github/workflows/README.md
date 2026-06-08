@@ -39,6 +39,7 @@ Workflow status table:
 Expected repository setting:
 
 - GitHub Pages should be configured to publish from the `gh-pages` branch.
-- Auto-merge should be enabled for the repository to allow the release PRs to merge automatically when checks pass.
+- Auto-merge should be enabled for the repository to allow the release PRs to merge automatically when checks pass: `Settings -> General -> Pull Requests -> Allow auto-merge`.
+- The `github-pages` environment should allow release tag deployments: `Settings -> Environments -> github-pages -> Deployment branches and tags`, then add the tag pattern `v*.*.*`.
 - The `main` branch should be protected to require pull requests before merging, ensuring that all changes are reviewed and validated by CI before becoming part of a release.
 - The `publish.yml` workflow should be allowed to interact with PyPI either via repo secrets for authentication or via GitHub's OIDC integration for secure token exchange.

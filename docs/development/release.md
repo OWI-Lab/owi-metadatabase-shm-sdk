@@ -41,3 +41,5 @@ If no release label is present, the workflow defaults to a patch release.
 - Configure PyPI Trusted Publishing for this repository and the reusable publish workflow.
 - Protect `main` so pull requests are required before merge.
 - Keep the CI workflow required on pull requests so the release workflow only runs for reviewed, green changes.
+- Enable pull request auto-merge in repository settings: `Settings -> General -> Pull Requests -> Allow auto-merge`.
+- Allow release tags to deploy to the `github-pages` environment: `Settings -> Environments -> github-pages -> Deployment branches and tags`, then add the tag pattern `v*.*.*`.
