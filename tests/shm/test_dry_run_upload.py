@@ -40,7 +40,7 @@ def test_dry_run_clients_expose_seeded_operation_log_structure() -> None:
 
 @pytest.mark.xfail(
     raises=NotImplementedError,
-    reason="Stage 2 will implement sensor dry-run recording.",
+    reason="Sensor dry-run recording is implemented in a follow-up PR.",
     strict=True,
 )
 def test_sensor_dry_run_records_upload_operations() -> None:
@@ -77,7 +77,7 @@ def test_sensor_dry_run_records_upload_operations() -> None:
 
 @pytest.mark.xfail(
     raises=NotImplementedError,
-    reason="Stage 2 will implement signal dry-run recording.",
+    reason="Signal dry-run recording is implemented in a follow-up PR.",
     strict=True,
 )
 def test_signal_dry_run_records_upload_operations() -> None:

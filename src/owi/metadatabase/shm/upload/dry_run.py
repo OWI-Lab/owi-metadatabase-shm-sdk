@@ -3,9 +3,6 @@
 The classes in this module are protocol-compatible stand-ins for the live
 ``ShmAPI`` mutation surface used by the upload orchestrators. They are intended
 to record lookup, create, and patch operations without calling a backend.
-
-Stage 1 defines the public structure and expected behavior. Stage 2 implements
-deterministic ids, seeded lookups, operation recording, and result shaping.
 """
 
 from __future__ import annotations
@@ -45,9 +42,8 @@ class DryRunOperation:
 class DryRunUploadClient:
     """Base operation-recorder surface for dry-run upload clients.
 
-    Stage 2 will implement storage and deterministic result shaping. The base
-    class exists now so tests and documentation can agree on the public surface
-    before the client behavior is filled in.
+    This base class defines the public recording surface. Concrete recording
+    behavior is implemented by subclasses as the dry-run transport evolves.
     """
 
     def __init__(self, *, starting_id: int = 1) -> None:
@@ -62,13 +58,13 @@ class DryRunUploadClient:
     def summary(self) -> Mapping[str, int]:
         """Return operation counts grouped by resource.
 
-        Stage 2 will populate this from recorded operations.
+        Follow-up implementation will populate this from recorded operations.
         """
-        self._stage2("summary")
+        self._not_implemented("summary")
 
-    def _stage2(self, method_name: str) -> None:
+    def _not_implemented(self, method_name: str) -> None:
         raise NotImplementedError(
-            f"{self.__class__.__name__}.{method_name} is defined for Stage 2 implementation."
+            f"{self.__class__.__name__}.{method_name} recording behavior is not implemented yet."
         )
 
 
@@ -98,23 +94,23 @@ class DryRunSensorUploadClient(DryRunUploadClient):
 
     def get_sensor_type(self, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded sensor type row during dry-run upload."""
-        self._stage2("get_sensor_type")
+        self._not_implemented("get_sensor_type")
 
     def get_sensor(self, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded or created sensor row during dry-run upload."""
-        self._stage2("get_sensor")
+        self._not_implemented("get_sensor")
 
     def create_sensor_type(self, payload: Mapping[str, Any], files: Any = None) -> dict[str, Any]:
         """Record a sensor type create operation."""
-        self._stage2("create_sensor_type")
+        self._not_implemented("create_sensor_type")
 
     def create_sensor(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a sensor create operation."""
-        self._stage2("create_sensor")
+        self._not_implemented("create_sensor")
 
     def create_sensor_calibration(self, payload: Mapping[str, Any], files: Any = None) -> dict[str, Any]:
         """Record a sensor calibration create operation."""
-        self._stage2("create_sensor_calibration")
+        self._not_implemented("create_sensor_calibration")
 
 
 class DryRunSignalUploadClient(DryRunUploadClient):
@@ -147,43 +143,43 @@ class DryRunSignalUploadClient(DryRunUploadClient):
 
     def get_sensor_type(self, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded sensor type row during dry-run upload."""
-        self._stage2("get_sensor_type")
+        self._not_implemented("get_sensor_type")
 
     def get_sensor(self, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded sensor row during dry-run upload."""
-        self._stage2("get_sensor")
+        self._not_implemented("get_sensor")
 
     def get_signal(self, signal_id: str, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded or created signal row during dry-run upload."""
-        self._stage2("get_signal")
+        self._not_implemented("get_signal")
 
     def create_signal(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a signal create operation."""
-        self._stage2("create_signal")
+        self._not_implemented("create_signal")
 
     def create_signal_history(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a signal history create operation."""
-        self._stage2("create_signal_history")
+        self._not_implemented("create_signal_history")
 
     def create_signal_calibration(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a signal calibration create operation."""
-        self._stage2("create_signal_calibration")
+        self._not_implemented("create_signal_calibration")
 
     def create_derived_signal(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal create operation."""
-        self._stage2("create_derived_signal")
+        self._not_implemented("create_derived_signal")
 
     def create_derived_signal_history(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal history create operation."""
-        self._stage2("create_derived_signal_history")
+        self._not_implemented("create_derived_signal_history")
 
     def patch_derived_signal_history(self, history_id: int, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal history patch operation."""
-        self._stage2("patch_derived_signal_history")
+        self._not_implemented("patch_derived_signal_history")
 
     def create_derived_signal_calibration(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal calibration create operation."""
-        self._stage2("create_derived_signal_calibration")
+        self._not_implemented("create_derived_signal_calibration")
 
 
 __all__ = [
