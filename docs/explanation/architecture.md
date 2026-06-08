@@ -108,6 +108,11 @@ Both orchestrators depend on protocols and shared helper modules instead of a
 legacy compatibility package. This keeps the workflow code small, testable, and
 usable from notebooks.
 
+Dry-run upload clients are an optional transport replacement for users who want
+to inspect uploader operations before mutating a backend. Live uploads can keep
+using `ShmAPI` directly. See [Optional Upload Dry Runs](dry-run-upload.md) for
+the design boundary.
+
 ## Shared Helper Modules
 
 The helper modules that used to live under a dedicated legacy package now have
