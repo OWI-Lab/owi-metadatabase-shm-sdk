@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-import pytest
-
 from owi.metadatabase.shm import (
     AssetSignalUploadRequest,
     DryRunSensorUploadClient,
@@ -38,11 +36,6 @@ def test_dry_run_clients_expose_seeded_operation_log_structure() -> None:
     assert signal_api.signals == ({"id": 30, "signal_id": "EXISTING"},)
 
 
-@pytest.mark.xfail(
-    raises=NotImplementedError,
-    reason="Sensor dry-run recording is implemented in a follow-up PR.",
-    strict=True,
-)
 def test_sensor_dry_run_records_upload_operations() -> None:
     dry_api = DryRunSensorUploadClient(sensor_types=[{"id": 100, "name": "ACC"}])
     uploader = ShmSensorUploader(shm_api=dry_api)
@@ -75,11 +68,6 @@ def test_sensor_dry_run_records_upload_operations() -> None:
     }
 
 
-@pytest.mark.xfail(
-    raises=NotImplementedError,
-    reason="Signal dry-run recording is implemented in a follow-up PR.",
-    strict=True,
-)
 def test_signal_dry_run_records_upload_operations() -> None:
     dry_api = DryRunSignalUploadClient(starting_id=100)
     lookup_service = Mock()
