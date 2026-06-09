@@ -118,11 +118,6 @@ class DryRunUploadClient:
         response = dict(row)
         return {"data": [response], "exists": True, "id": response.get("id"), "response": response}
 
-    def _not_implemented(self, method_name: str) -> None:
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.{method_name} recording behavior is not implemented yet."
-        )
-
 
 class DryRunSensorUploadClient(DryRunUploadClient):
     """Dry-run transport for :class:`ShmSensorUploader`.
@@ -203,46 +198,55 @@ class DryRunSignalUploadClient(DryRunUploadClient):
         self.sensor_types = tuple(dict(row) for row in sensor_types)
         self.sensors = tuple(dict(row) for row in sensors)
         self.signals = tuple(dict(row) for row in signals)
+        self._created_signals: list[dict[str, Any]] = []
 
     def get_sensor_type(self, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded sensor type row during dry-run upload."""
-        self._not_implemented("get_sensor_type")
+        return self._lookup("sensor_type", self.sensor_types, kwargs)
 
     def get_sensor(self, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded sensor row during dry-run upload."""
-        self._not_implemented("get_sensor")
+        return self._lookup("sensor", self.sensors, kwargs)
 
     def get_signal(self, signal_id: str, **kwargs: Any) -> dict[str, Any]:
         """Resolve one seeded or created signal row during dry-run upload."""
-        self._not_implemented("get_signal")
+        filters = {"signal_id": signal_id, **kwargs}
+        return self._lookup("signal", [*self.signals, *self._created_signals], filters)
 
     def create_signal(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a signal create operation."""
-        self._not_implemented("create_signal")
+        row, result = self._create("signal", payload)
+        self._created_signals.append(row)
+        return result
 
     def create_signal_history(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a signal history create operation."""
-        self._not_implemented("create_signal_history")
+        _, result = self._create("signal_history", payload)
+        return result
 
     def create_signal_calibration(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a signal calibration create operation."""
-        self._not_implemented("create_signal_calibration")
+        _, result = self._create("signal_calibration", payload)
+        return result
 
     def create_derived_signal(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal create operation."""
-        self._not_implemented("create_derived_signal")
+        _, result = self._create("derived_signal", payload)
+        return result
 
     def create_derived_signal_history(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal history create operation."""
-        self._not_implemented("create_derived_signal_history")
+        _, result = self._create("derived_signal_history", payload)
+        return result
 
     def patch_derived_signal_history(self, history_id: int, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal history patch operation."""
-        self._not_implemented("patch_derived_signal_history")
+        return self._patch("derived_signal_history", history_id, payload)
 
     def create_derived_signal_calibration(self, payload: Mapping[str, Any]) -> dict[str, Any]:
         """Record a derived signal calibration create operation."""
-        self._not_implemented("create_derived_signal_calibration")
+        _, result = self._create("derived_signal_calibration", payload)
+        return result
 
 
 __all__ = [
