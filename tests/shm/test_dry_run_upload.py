@@ -38,11 +38,6 @@ def test_dry_run_clients_expose_seeded_operation_log_structure() -> None:
     assert signal_api.signals == ({"id": 30, "signal_id": "EXISTING"},)
 
 
-@pytest.mark.xfail(
-    raises=NotImplementedError,
-    reason="Sensor dry-run recording is implemented in a follow-up PR.",
-    strict=True,
-)
 def test_sensor_dry_run_records_upload_operations() -> None:
     dry_api = DryRunSensorUploadClient(sensor_types=[{"id": 100, "name": "ACC"}])
     uploader = ShmSensorUploader(shm_api=dry_api)
